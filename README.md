@@ -38,3 +38,22 @@ UserResource created = user.create("two", "abc", true);
 UserResource foundOrCreated = user.findOrCreate("two", "abc", true);
 ```
 
+## Roles Example
+
+```Java
+// Find a role by it's name (null if not found)
+RoleRepresentations one = new Roles(list).findByName("one");
+
+// Find a role by it's name or fail with an exception if not found
+RoleRepresentations one = new Roles(list).findByNameOrFail("unknown");
+
+// Find multiple roles by their name and fail if any of them is not found
+List<RoleRepresentations> foundRoles = new Roles(list).findByNamesOrFail("one", "two", "three");
+
+// Return only role names as list
+List<String> roleNames = new Roles(list).asNames();
+
+// Determine which of the expected roles are missing in the current list
+List<RoleRepresentations> missingRoles = new Roles(currentRoles).missing(expectedRoles);
+
+```
