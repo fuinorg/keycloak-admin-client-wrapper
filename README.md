@@ -9,12 +9,32 @@ Small wrapper around the [Keycloak Admin Client](https://www.keycloak.org/keyclo
 ## Realm Example
 
 ```Java
+// Create realm wrapper
+Realm realm = new Realm(keycloak);
+
 // Find a realm by it's name (null if not found)
-RealmRepresentation foundRealm = testee.find("test1");
+RealmRepresentation foundRealm = realm.find("test1");
 
 // Create a realm and enable it
-RealmResource createdRealm = testee.create("test2", true);
+RealmResource createdRealm = realm.create("test2", true);
 
 // Find a realm or create it in case it was not found
-RealmResource foundOrCreatedRealm = testee.findOrCreate("test3", true);
+RealmResource foundOrCreatedRealm = realm.findOrCreate("test3", true);
 ```
+
+## User Example
+
+```Java
+// Create user wrapper
+User user = new User(realmResource);
+            
+// Find a user by it's name (null if not found)
+UserRepresentation found = user.find("one");
+
+// Create a user with password and enable it
+UserResource created = user.create("two", "abc", true);
+
+// Find a user or create it in case it was not found
+UserResource foundOrCreated = user.findOrCreate("two", "abc", true);
+```
+
