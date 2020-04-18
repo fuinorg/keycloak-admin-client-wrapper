@@ -22,31 +22,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * Test for the {@link Realm} class.
+ * Test for the {@link User} class.
  */
 @Testcontainers
-public class RealmIT extends BaseTest {
+public class UserIT extends BaseTest {
 
-    private static final String REALM = "realmit";
-    
+    private static final String REALM = "userit";
+
+    private static final String USER = "jane";
+
     @Test
     public void testFindOrCreate() {
 
         try (final Keycloak keycloak = master()) {
 
             // PREPARE
-            final Realm testee = new Realm(keycloak);
-            assertThat(testee.find(REALM)).isNull();
+            final Realm realm = new Realm(keycloak);
+            final RealmResource realmResource = realm.findOrCreate(REALM, true);
+            final User testee = new User(realmResource);
+            assertThat(testee.find(USER)).isNull();
 
             // TEST
-            final RealmResource realmResource = testee.findOrCreate(REALM, true);
+            final UserResource userResource = testee.findOrCreate(USER, "abc", true);
 
             // VERIFY
-            assertThat(realmResource).isNotNull();
-            assertThat(testee.find(REALM)).isNotNull();
+            assertThat(userResource).isNotNull();
+            assertThat(testee.find(USER)).isNotNull();
 
         }
 
