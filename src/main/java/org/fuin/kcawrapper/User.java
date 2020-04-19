@@ -53,7 +53,7 @@ public final class User {
      * @param resource
      *            Associated user resource.
      */
-    public User(final Realm realm, final String id, final UserResource resource) {
+    private User(final Realm realm, final String id, final UserResource resource) {
         super();
         this.realm = realm;
         this.id = id;

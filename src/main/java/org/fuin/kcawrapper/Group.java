@@ -49,7 +49,7 @@ public final class Group {
      * @param resource
      *            Associated group resource.
      */
-    public Group(final Realm realm, final String id, final GroupResource resource) {
+    private Group(final Realm realm, final String id, final GroupResource resource) {
         super();
         this.realm = realm;
         this.id = id;

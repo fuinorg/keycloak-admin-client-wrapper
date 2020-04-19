@@ -50,7 +50,7 @@ public final class Client {
      * @param resource
      *            Associated client resource.
      */
-    public Client(final Realm realm, final String id, final ClientResource resource) {
+    private Client(final Realm realm, final String id, final ClientResource resource) {
         super();
         this.realm = realm;
         this.id = id;

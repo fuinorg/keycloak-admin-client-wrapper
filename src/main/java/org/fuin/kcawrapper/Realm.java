@@ -48,7 +48,7 @@ public final class Realm {
      * @param resource
      *            Associated realm resource.
      */
-    public Realm(final Keycloak keycloak, final String name, final RealmResource resource) {
+    private Realm(final Keycloak keycloak, final String name, final RealmResource resource) {
         super();
         this.keycloak = keycloak;
         this.name = name;
