@@ -9,51 +9,73 @@ Small wrapper around the [Keycloak Admin Client](https://www.keycloak.org/keyclo
 ## Realm Example
 
 ```Java
-// Create realm wrapper
-Realm realm = new Realm(keycloak);
-
 // Find a realm by it's name (null if not found)
-RealmRepresentation foundRealm = realm.find("test1");
+Realm foundRealm = Realm.find(keycloak, "test1");
 
 // Create a realm and enable it
-RealmResource createdRealm = realm.create("test2", true);
+Realm createdRealm = Realm.create(keycloak, "test2", true);
 
 // Find a realm or create it in case it was not found
-RealmResource foundOrCreatedRealm = realm.findOrCreate("test3", true);
+Realm foundOrCreatedRealm = Realm.findOrCreate(keycloak, "test3", true);
 ```
 
 ## User Example
 
 ```Java
-// Create user wrapper
-User user = new User(realmResource);
-            
 // Find a user by it's name (null if not found)
-UserRepresentation found = user.find("one");
+User found = User.find(realm, "one");
 
 // Create a user with password and enable it
-UserResource created = user.create("two", "abc", true);
+User created = User.create(realm, "two", "abc", true);
 
-// Find a user or create it in case it was not found
-UserResource foundOrCreated = user.findOrCreate("two", "abc", true);
+// Find a user or creates it in case it was not found
+User foundOrCreated = User.findOrCreate(realm, "two", "abc", true);
+```
+
+## Group Example
+
+```Java
+// Find a group by it's name (null if not found)
+Group found = Group.find(realm, "one");
+
+// Create a group
+Group created = Group.create(realm, "two");
+
+// Find a group or creates it in case it was not found
+Group foundOrCreated = Group.findOrCreate(realm, "two");
+```
+
+## Client Example
+
+```Java
+// Find a client or create it with a typical Open ID connect client with client secret and redirect URI 
+Client clientA = Client.findOrCreateOpenIdConnectWithSecret(realm, "my-service-a", "abc", "http://localhost:8080/api");
+
+// Find a client or create it based on a full specification
+Client clientB = Client.findOrCreate(realm, "my-service-b", clientRepresentation);
+
+// Find a client by it's name (null if not found)
+Client clientC = Client.find(realm, "my-service-c");
+
+// Find a client by it's name or fail with a runtime exception
+Client clientD = Client.findOrFail(realm, "my-service-d");
 ```
 
 ## Roles Example
 
 ```Java
-// Find a role by it's name (null if not found)
-RoleRepresentations one = new Roles(list).findByName("one");
+ // Find a role by it's name (null if not found)
+RoleRepresentation one = new Roles(list).findByName("one");
 
 // Find a role by it's name or fail with an exception if not found
-RoleRepresentations one = new Roles(list).findByNameOrFail("unknown");
+RoleRepresentation unknown = new Roles(list).findByNameOrFail("unknown");
 
 // Find multiple roles by their name and fail if any of them is not found
-List<RoleRepresentations> foundRoles = new Roles(list).findByNamesOrFail("one", "two", "three");
+List<RoleRepresentation> foundRoles = new Roles(list).findByNamesOrFail("one", "two", "three");
 
 // Return only role names as list
 List<String> roleNames = new Roles(list).asNames();
 
 // Determine which of the expected roles are missing in the current list
-List<RoleRepresentations> missingRoles = new Roles(currentRoles).missing(expectedRoles);
-
+List<RoleRepresentation> missingRoles = new Roles(currentRoles).missing(expectedRoles);
 ```
