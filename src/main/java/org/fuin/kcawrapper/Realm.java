@@ -83,6 +83,13 @@ public final class Realm {
     }
 
     /**
+     * Removes the realm and all associated objects.
+     */
+    public final void remove() {
+        resource.remove();
+    }
+
+    /**
      * Creates a realm.
      * 
      * @param keycloak
