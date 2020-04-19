@@ -89,11 +89,13 @@ RoleRepresentation one = new Roles(list).findByName("one");
 RoleRepresentation unknown = new Roles(list).findByNameOrFail("unknown");
 
 // Find multiple roles by their name and fail if any of them is not found
-List<RoleRepresentation> foundRoles = new Roles(list).findByNamesOrFail("one", "two", "three");
+Roles foundRoles = new Roles(list).findByNamesOrFail("one", "two", "three");
 
 // Return only role names as list
 List<String> roleNames = new Roles(list).asNames();
 
 // Determine which of the expected roles are missing in the current list
-List<RoleRepresentation> missingRoles = new Roles(currentRoles).missing(expectedRoles);
+Roles currentRoles = new Roles(list1);
+Roles expectedRoles = new Roles(list2);
+Roles missingRoles = currentRoles.missing(expectedRoles);
 ```
