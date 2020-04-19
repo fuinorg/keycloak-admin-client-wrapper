@@ -30,6 +30,9 @@ User created = User.create(realm, "two", "abc", true);
 
 // Find a user or creates it in case it was not found
 User foundOrCreated = User.findOrCreate(realm, "two", "abc", true);
+
+// Join a group
+user.joinGroups(group);
 ```
 
 ## Group Example
