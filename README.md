@@ -17,6 +17,10 @@ Realm createdRealm = Realm.create(keycloak, "test2", true);
 
 // Find a realm or create it in case it was not found
 Realm foundOrCreatedRealm = Realm.findOrCreate(keycloak, "test3", true);
+
+// Create and remove a realm
+Realm realm4 = Realm.create(keycloak, "test4", true);
+realm4.remove();
 ```
 
 ## User Example
@@ -33,6 +37,11 @@ User foundOrCreated = User.findOrCreate(realm, "two", "abc", true);
 
 // Join a group
 user.joinGroups(group);
+
+// Add some realm management client roles to the user
+Client realmManagementClient = Client.findOrFail(realm, "realm-management");
+user.addClientRoles(realmManagementClient, "impersonation", "manage-users", "view-users");
+
 ```
 
 ## Group Example
@@ -46,6 +55,12 @@ Group created = Group.create(realm, "two");
 
 // Find a group or creates it in case it was not found
 Group foundOrCreated = Group.findOrCreate(realm, "two");
+
+// Add some realm management client roles to the admin group
+Group adminGroup = Group.create(realm, "admins");
+Client realmManagementClient = Client.findOrFail(realm, "realm-management");
+adminGroup.addClientRoles(realmManagementClient, "impersonation", "manage-users", "view-users");
+
 ```
 
 ## Client Example
