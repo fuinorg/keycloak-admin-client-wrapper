@@ -23,7 +23,6 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.keycloak.admin.client.resource.ClientResource;
-import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,22 +34,61 @@ public final class Client {
 
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
 
-    private final RealmResource realm;
+    private final Realm realm;
+
+    private final String id;
+
+    private final ClientResource resource;
 
     /**
      * Constructor with mandatory parameters.
      * 
      * @param realm
      *            Realm the client belongs to.
+     * @param id
+     *            Unique client identifier.
+     * @param resource
+     *            Associated client resource.
      */
-    public Client(final RealmResource realm) {
+    public Client(final Realm realm, final String id, final ClientResource resource) {
         super();
         this.realm = realm;
+        this.id = id;
+        this.resource = resource;
+    }
+
+    /**
+     * Returns the realm the client belongs to.
+     * 
+     * @return Realm.
+     */
+    public final Realm getRealm() {
+        return realm;
+    }
+
+    /**
+     * Returns the unique identifier of the client.
+     * 
+     * @return ID that is used for GET operations on the client resource.
+     */
+    public final String getId() {
+        return id;
+    }
+
+    /**
+     * Returns the client resource.
+     * 
+     * @return Associated client resource.
+     */
+    public final ClientResource getResource() {
+        return resource;
     }
 
     /**
      * Creates a typical Open ID connect client with client secret and redirect URI.
      * 
+     * @param realm
+     *            Realm the client belongs to.
      * @param clientId
      *            Client identifier.
      * @param secret
@@ -60,42 +98,45 @@ public final class Client {
      * 
      * @return New client.
      */
-    public final ClientResource createOpenIdConnectWithSecret(final String clientId, final String secret, final String uri) {
+    public static Client createOpenIdConnectWithSecret(final Realm realm, final String clientId, final String secret, final String uri) {
 
-        final ClientRepresentation client = new ClientRepresentation();
-        client.setClientId(clientId);
-        client.setProtocol("openid-connect");
-        client.setPublicClient(false);
+        final ClientRepresentation clientRep = new ClientRepresentation();
+        clientRep.setClientId(clientId);
+        clientRep.setProtocol("openid-connect");
+        clientRep.setPublicClient(false);
         final List<String> redirectUris = new ArrayList<>();
         redirectUris.add(uri);
-        client.setRedirectUris(redirectUris);
-        client.setSecret(secret);
-        client.setClientAuthenticatorType("client-secret");
-        client.setStandardFlowEnabled(true);
-        client.setDirectAccessGrantsEnabled(true);
-        client.setServiceAccountsEnabled(true);
+        clientRep.setRedirectUris(redirectUris);
+        clientRep.setSecret(secret);
+        clientRep.setClientAuthenticatorType("client-secret");
+        clientRep.setStandardFlowEnabled(true);
+        clientRep.setDirectAccessGrantsEnabled(true);
+        clientRep.setServiceAccountsEnabled(true);
 
-        return create(clientId, client);
+        return create(realm, clientId, clientRep);
 
     }
 
     /**
      * Creates a client based on a representation.
      * 
+     * @param realm
+     *            Realm the client belongs to.
      * @param clientId
      *            Client identifier.
-     * @param representation
+     * @param clientRep
      *            Representation to use.
      * 
      * @return New client.
      */
-    public final ClientResource create(String clientId, ClientRepresentation representation) {
+    public static Client create(final Realm realm, final String clientId, final ClientRepresentation clientRep) {
 
-        try (final Response response = realm.clients().create(representation)) {
+        try (final Response response = realm.getResource().clients().create(clientRep)) {
             KcaUtils.ensureCreated("client " + clientId, response);
-            String id = KcaUtils.extractId(response);
+            final String id = KcaUtils.extractId(response);
             LOG.debug("Created client '{}'", clientId);
-            return realm.clients().get(id);
+            final ClientResource clientRes = realm.getResource().clients().get(id);
+            return new Client(realm, id, clientRes);
         }
 
     }
@@ -103,20 +144,23 @@ public final class Client {
     /**
      * Locates a user by it's client identifier.
      * 
+     * @param realm
+     *            Realm the client belongs to.
      * @param clientId
      *            Client ID of user to find.
      * 
      * @return Representation or {@literal null} if not found.
      */
-    public final ClientRepresentation find(final String clientId) {
-        final List<ClientRepresentation> clients = realm.clients().findAll();
+    public static Client find(final Realm realm, final String clientId) {
+        final List<ClientRepresentation> clients = realm.getResource().clients().findAll();
         if (clients == null) {
             return null;
         }
-        for (final ClientRepresentation client : clients) {
-            if (clientId.equals(client.getClientId())) {
+        for (final ClientRepresentation clientRep : clients) {
+            if (clientId.equals(clientRep.getClientId())) {
                 LOG.debug("Found client '{}'", clientId);
-                return client;
+                final ClientResource clientRes = realm.getResource().clients().get(clientRep.getId());
+                return new Client(realm, clientRep.getId(), clientRes);
             }
         }
         return null;
@@ -125,13 +169,15 @@ public final class Client {
     /**
      * Locates a user by it's client identifier or fails with a runtime exception if it does not exist.
      * 
+     * @param realm
+     *            Realm the client belongs to.
      * @param clientId
      *            Client ID of user to find.
      * 
      * @return Representation.
      */
-    public final ClientRepresentation findOrFail(final String clientId) {
-        final ClientRepresentation client = find(clientId);
+    public static Client findOrFail(final Realm realm, final String clientId) {
+        final Client client = find(realm, clientId);
         if (client == null) {
             throw new RuntimeException("Client '" + clientId + "' should exist, but was not found");
         }
@@ -143,6 +189,8 @@ public final class Client {
      * Locates a user by it's client identifier or creates it if it does not exist yet.<br>
      * Creates a typical Open ID connect client with client secret and redirect.
      * 
+     * @param realm
+     *            Realm the client belongs to.
      * @param clientId
      *            Client identifier.
      * @param secret
@@ -152,30 +200,33 @@ public final class Client {
      * 
      * @return Resource.
      */
-    public final ClientResource findOrCreateOpenIdConnectWithSecret(final String clientId, final String secret, final String uri) {
-        final ClientRepresentation cr = find(clientId);
-        if (cr == null) {
-            return createOpenIdConnectWithSecret(clientId, secret, uri);
+    public static Client findOrCreateOpenIdConnectWithSecret(final Realm realm, final String clientId, final String secret,
+            final String uri) {
+        final Client client = find(realm, clientId);
+        if (client == null) {
+            return createOpenIdConnectWithSecret(realm, clientId, secret, uri);
         }
-        return realm.clients().get(cr.getId());
+        return client;
     }
 
     /**
      * Locates a user by it's client identifier or creates it if it does not exist yet.
      * 
+     * @param realm
+     *            Realm the client belongs to.
      * @param clientId
      *            Client ID of user to find.
      * @param representation
      *            Representation to use in case a new client needs to be created.
      * 
-     * @return Resource.
+     * @return Client.
      */
-    public final ClientResource findOrCreate(final String clientId, final ClientRepresentation representation) {
-        final ClientRepresentation cr = find(clientId);
-        if (cr == null) {
-            return create(clientId, representation);
+    public static Client findOrCreate(final Realm realm, final String clientId, final ClientRepresentation representation) {
+        final Client client = find(realm, clientId);
+        if (client == null) {
+            return create(realm, clientId, representation);
         }
-        return realm.clients().get(cr.getId());
+        return client;
     }
 
 }

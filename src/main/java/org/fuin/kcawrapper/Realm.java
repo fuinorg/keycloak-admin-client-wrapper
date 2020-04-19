@@ -34,20 +34,59 @@ public final class Realm {
 
     private final Keycloak keycloak;
 
+    private final String name;
+
+    private final RealmResource resource;
+
     /**
      * Constructor with mandatory parameters.
      * 
      * @param keycloak
-     *            Keycloak instanec to use.
+     *            Keycloak instance to use.
+     * @param name
+     *            Unique realm name.
+     * @param resource
+     *            Associated realm resource.
      */
-    public Realm(final Keycloak keycloak) {
+    public Realm(final Keycloak keycloak, final String name, final RealmResource resource) {
         super();
         this.keycloak = keycloak;
+        this.name = name;
+        this.resource = resource;
+    }
+
+    /**
+     * Returns the keycloak instance the realm belongs to.
+     * 
+     * @return Keycloak instance.
+     */
+    public final Keycloak getKeycloak() {
+        return keycloak;
+    }
+
+    /**
+     * Returns the unique realm name.
+     * 
+     * @return Unique realm name.
+     */
+    public final String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the realm resource.
+     * 
+     * @return Associated realm resource.
+     */
+    public final RealmResource getResource() {
+        return resource;
     }
 
     /**
      * Creates a realm.
      * 
+     * @param keycloak
+     *            Keycloak instance to use.
      * @param name
      *            Name of the realm to create.
      * @param enable
@@ -55,29 +94,32 @@ public final class Realm {
      * 
      * @return Resource of the created realm.
      */
-    public RealmResource create(final String name, final boolean enable) {
+    public static Realm create(final Keycloak keycloak, final String name, final boolean enable) {
         LOG.debug("Create realm '{}'", name);
-        RealmRepresentation realm = new RealmRepresentation();
-        realm.setRealm(name);
-        realm.setEnabled(enable);
-        keycloak.realms().create(realm);
-        return keycloak.realm(name);
+        final RealmRepresentation realmRep = new RealmRepresentation();
+        realmRep.setRealm(name);
+        realmRep.setEnabled(enable);
+        keycloak.realms().create(realmRep);
+        final RealmResource realmRes = keycloak.realm(name);
+        return new Realm(keycloak, name, realmRes);
     }
 
     /**
      * Locates a realm by it's name.
      * 
+     * @param keycloak
+     *            Keycloak instance to use.
      * @param name
      *            Name of realm to find.
      * 
      * @return Representation or {@literal null} if not found.
      */
-    public RealmRepresentation find(final String name) {
+    public static Realm find(final Keycloak keycloak, final String name) {
         List<RealmRepresentation> realms = keycloak.realms().findAll();
         for (final RealmRepresentation realm : realms) {
             if (realm.getRealm().equals(name)) {
                 LOG.debug("Found realm '{}'", name);
-                return realm;
+                return new Realm(keycloak, name, keycloak.realm(name));
             }
         }
         return null;
@@ -86,6 +128,8 @@ public final class Realm {
     /**
      * Locates a realm by it's name or creates it if it was not found.
      * 
+     * @param keycloak
+     *            Keycloak instance to use.
      * @param name
      *            Name of the realm to find.
      * @param enable
@@ -93,12 +137,12 @@ public final class Realm {
      * 
      * @return Resource of the realm.
      */
-    public RealmResource findOrCreate(final String name, final boolean enable) {
-        RealmRepresentation realm = find(name);
+    public static Realm findOrCreate(final Keycloak keycloak, final String name, final boolean enable) {
+        final Realm realm = find(keycloak, name);
         if (realm == null) {
-            return create(name, enable);
+            return create(keycloak, name, enable);
         }
-        return keycloak.realm(name);
+        return realm;
     }
 
 }

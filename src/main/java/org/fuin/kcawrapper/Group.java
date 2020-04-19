@@ -22,7 +22,6 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.keycloak.admin.client.resource.GroupResource;
-import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,37 +33,77 @@ public final class Group {
 
     private static final Logger LOG = LoggerFactory.getLogger(Group.class);
 
-    private final RealmResource realm;
+    private final Realm realm;
+
+    private final String id;
+
+    private final GroupResource resource;
 
     /**
      * Constructor with mandatory parameters.
      * 
      * @param realm
      *            Realm the group belongs to.
+     * @param id
+     *            Unique group identifier.
+     * @param resource
+     *            Associated group resource.
      */
-    public Group(final RealmResource realm) {
+    public Group(final Realm realm, final String id, final GroupResource resource) {
         super();
         this.realm = realm;
+        this.id = id;
+        this.resource = resource;
+    }
+
+    /**
+     * Returns the realm the group belongs to.
+     * 
+     * @return Realm.
+     */
+    public final Realm getRealm() {
+        return realm;
+    }
+
+    /**
+     * Returns the unique identifier of the group.
+     * 
+     * @return ID that is used for GET operations on the group resource.
+     */
+    public final String getId() {
+        return id;
+    }
+
+    /**
+     * Returns the group resource.
+     * 
+     * @return Associated group resource.
+     */
+    public final GroupResource getResource() {
+        return resource;
     }
 
     /**
      * Creates a group.
      * 
+     * @param realm
+     *            Realm the group belongs to.
      * @param name
      *            Name.
      * 
      * @return New group.
      */
-    public final GroupResource create(final String name) {
+    public static Group create(final Realm realm, final String name) {
         LOG.debug("Create group '{}'", name);
 
-        final GroupRepresentation group = new GroupRepresentation();
-        group.setName(name);
+        final GroupRepresentation groupRep = new GroupRepresentation();
+        groupRep.setName(name);
 
-        try (final Response response = realm.groups().add(group)) {
+        try (final Response response = realm.getResource().groups().add(groupRep)) {
             KcaUtils.ensureCreated("group " + name, response);
             final String id = KcaUtils.extractId(response);
-            return realm.groups().group(id);
+            final GroupResource groupRes = realm.getResource().groups().group(id);
+            return new Group(realm, id, groupRes);
         }
 
     }
@@ -72,20 +111,23 @@ public final class Group {
     /**
      * Locates a group by it's name.
      * 
+     * @param realm
+     *            Realm the group belongs to.
      * @param name
      *            Name of group to find.
      * 
      * @return Representation or {@literal null} if not found.
      */
-    public final GroupRepresentation find(final String name) {
-        final List<GroupRepresentation> groups = realm.groups().groups();
-        if (groups == null) {
+    public static Group find(final Realm realm, final String name) {
+        final List<GroupRepresentation> groupReps = realm.getResource().groups().groups();
+        if (groupReps == null) {
             return null;
         }
-        for (final GroupRepresentation group : groups) {
-            if (group.getName().equals(name)) {
+        for (final GroupRepresentation groupRep : groupReps) {
+            if (groupRep.getName().equals(name)) {
                 LOG.debug("Found group '{}'", name);
-                return group;
+                final GroupResource groupRes = realm.getResource().groups().group(groupRep.getId());
+                return new Group(realm, groupRep.getId(), groupRes);
             }
         }
         return null;
@@ -94,17 +136,19 @@ public final class Group {
     /**
      * Locates a group by it's name or creates it if it was not found.
      * 
+     * @param realm
+     *            Realm the group belongs to.
      * @param name
      *            Name.
      * 
      * @return Resource of the realm.
      */
-    public final GroupResource findOrCreate(final String name) {
-        GroupRepresentation group = find(name);
+    public static Group findOrCreate(final Realm realm, final String name) {
+        final Group group = find(realm, name);
         if (group == null) {
-            return create(name);
+            return create(realm, name);
         }
-        return realm.groups().group(group.getId());
+        return group;
     }
 
 }

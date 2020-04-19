@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.GroupResource;
-import org.keycloak.admin.client.resource.RealmResource;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
@@ -41,17 +39,15 @@ public class GroupIT extends BaseTest {
         try (final Keycloak keycloak = master()) {
 
             // PREPARE
-            final Realm realm = new Realm(keycloak);
-            final RealmResource realmResource = realm.findOrCreate(REALM, true);
-            final Group testee = new Group(realmResource);
-            assertThat(testee.find(GROUP)).isNull();
+            final Realm realm = Realm.findOrCreate(keycloak, REALM, true);
+            assertThat(Group.find(realm, GROUP)).isNull();
 
             // TEST
-            final GroupResource groupResource = testee.findOrCreate(GROUP);
+            final Group group = Group.findOrCreate(realm, GROUP);
 
             // VERIFY
-            assertThat(groupResource).isNotNull();
-            assertThat(testee.find(GROUP)).isNotNull();
+            assertThat(group).isNotNull();
+            assertThat(Group.find(realm, GROUP)).isNotNull();
 
         }
 

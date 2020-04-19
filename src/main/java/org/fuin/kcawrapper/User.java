@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
-import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -37,22 +36,61 @@ public final class User {
 
     private static final Logger LOG = LoggerFactory.getLogger(User.class);
 
-    private final RealmResource realm;
+    private final Realm realm;
+
+    private final String id;
+
+    private final UserResource resource;
 
     /**
      * Constructor with mandatory parameters.
      * 
      * @param realm
      *            Realm the user belongs to.
+     * @param id
+     *            Unique user identifier.
+     * @param resource
+     *            Associated user resource.
      */
-    public User(final RealmResource realm) {
+    public User(final Realm realm, final String id, final UserResource resource) {
         super();
         this.realm = realm;
+        this.id = id;
+        this.resource = resource;
+    }
+
+    /**
+     * Returns the realm the user belongs to.
+     * 
+     * @return Realm.
+     */
+    public final Realm getRealm() {
+        return realm;
+    }
+
+    /**
+     * Returns the unique identifier of the user.
+     * 
+     * @return ID that is used for GET operations on the user resource.
+     */
+    public final String getId() {
+        return id;
+    }
+
+    /**
+     * Returns the user resource.
+     * 
+     * @return Associated user resource.
+     */
+    public final UserResource getResource() {
+        return resource;
     }
 
     /**
      * Creates a user.
      * 
+     * @param realm
+     *            Realm the user belongs to.
      * @param name
      *            Username.
      * @param pw
@@ -62,7 +100,7 @@ public final class User {
      * 
      * @return New user.
      */
-    public final UserResource create(final String name, final String pw, final boolean enable) {
+    public static User create(final Realm realm, final String name, final String pw, final boolean enable) {
         LOG.debug("Create user '{}'", name);
 
         final CredentialRepresentation credential = new CredentialRepresentation();
@@ -75,10 +113,11 @@ public final class User {
         user.setCredentials(asList(credential));
         user.setEnabled(enable);
 
-        try (final Response response = realm.users().create(user)) {
+        try (final Response response = realm.getResource().users().create(user)) {
             KcaUtils.ensureCreated("user " + name, response);
             final String id = KcaUtils.extractId(response);
-            return realm.users().get(id);
+            final UserResource userResource = realm.getResource().users().get(id);
+            return new User(realm, id, userResource);
         }
 
     }
@@ -86,20 +125,23 @@ public final class User {
     /**
      * Locates a user by it's name.
      * 
+     * @param realm
+     *            Realm the user belongs to.
      * @param name
      *            Name of user to find.
      * 
      * @return Representation or {@literal null} if not found.
      */
-    public final UserRepresentation find(final String name) {
-        final List<UserRepresentation> users = realm.users().list();
-        if (users == null) {
+    public static User find(final Realm realm, final String name) {
+        final List<UserRepresentation> userReps = realm.getResource().users().list();
+        if (userReps == null) {
             return null;
         }
-        for (final UserRepresentation user : users) {
-            if (user.getUsername().equals(name)) {
+        for (final UserRepresentation userRep : userReps) {
+            if (userRep.getUsername().equals(name)) {
                 LOG.debug("Found user '{}'", name);
-                return user;
+                final UserResource userResource = realm.getResource().users().get(userRep.getId());
+                return new User(realm, userRep.getId(), userResource);
             }
         }
         return null;
@@ -108,6 +150,8 @@ public final class User {
     /**
      * Locates a user by it's name or creates it if it was not found.
      * 
+     * @param realm
+     *            Realm the user belongs to.
      * @param name
      *            Username.
      * @param pw
@@ -117,12 +161,12 @@ public final class User {
      * 
      * @return Resource of the realm.
      */
-    public final UserResource findOrCreate(final String name, final String pw, final boolean enable) {
-        UserRepresentation user = find(name);
+    public static User findOrCreate(final Realm realm, final String name, final String pw, final boolean enable) {
+        final User user = find(realm, name);
         if (user == null) {
-            return create(name, pw, enable);
+            return create(realm, name, pw, enable);
         }
-        return realm.users().get(user.getId());
+        return user;
     }
 
 }

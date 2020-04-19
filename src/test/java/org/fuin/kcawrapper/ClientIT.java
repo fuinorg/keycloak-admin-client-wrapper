@@ -22,8 +22,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.ClientResource;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
@@ -42,18 +40,16 @@ public class ClientIT extends BaseTest {
         try (final Keycloak keycloak = master()) {
 
             // PREPARE
-            final Realm realm = new Realm(keycloak);
-            final RealmResource realmResource = realm.findOrCreate(REALM, true);
-            final Client testee = new Client(realmResource);
-            assertThat(testee.find(CLIENT)).isNull();
+            final Realm realm = Realm.findOrCreate(keycloak, REALM, true);
+            assertThat(Client.find(realm, CLIENT)).isNull();
 
             // TEST
-            final ClientResource clientResource = testee.findOrCreateOpenIdConnectWithSecret(CLIENT, "abc", "http://localhost:8080/api");
+            final Client client = Client.findOrCreateOpenIdConnectWithSecret(realm, CLIENT, "abc", "http://localhost:8080/api");
 
             // VERIFY
-            assertThat(clientResource).isNotNull();
-            assertThat(testee.find(CLIENT)).isNotNull();
-            assertThat(testee.findOrFail(CLIENT)).isNotNull();
+            assertThat(client).isNotNull();
+            assertThat(Client.find(realm, CLIENT)).isNotNull();
+            assertThat(Client.findOrFail(realm, CLIENT)).isNotNull();
 
         }
 
@@ -65,13 +61,11 @@ public class ClientIT extends BaseTest {
         try (final Keycloak keycloak = master()) {
 
             // PREPARE
-            final Realm realm = new Realm(keycloak);
-            final RealmResource realmResource = realm.findOrCreate(REALM, true);
-            final Client testee = new Client(realmResource);
-            
+            final Realm realm = Realm.findOrCreate(keycloak, REALM, true);
+
             // TEST & VERIFY
             try {
-                testee.findOrFail("other-service");
+                Client.findOrFail(realm, "other-service");
                 fail();
             } catch (final RuntimeException ex) {
                 assertThat(ex.getMessage()).isEqualTo("Client 'other-service' should exist, but was not found");
@@ -80,5 +74,5 @@ public class ClientIT extends BaseTest {
         }
 
     }
-    
+
 }
