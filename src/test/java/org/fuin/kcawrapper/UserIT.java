@@ -19,8 +19,11 @@ package org.fuin.kcawrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.GroupRepresentation;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
@@ -53,4 +56,30 @@ public class UserIT extends BaseTest {
 
     }
 
+    @Test
+    public void testJoinGroups() {
+        
+        try (final Keycloak keycloak = master()) {
+
+            // PREPARE
+            final String groupName = "administrators";
+            final Realm realm = Realm.findOrCreate(keycloak, REALM, true);
+            final User user = User.findOrCreate(realm, "john", "123", true);
+            final Group group = Group.findOrCreate(realm, groupName);
+
+            // TEST
+            user.joinGroups(group);
+
+            // VERIFY
+            final List<GroupRepresentation> groupReps = user.getResource().groups();
+            assertThat(groupReps).hasSize(1);
+            final GroupRepresentation groupRep = groupReps.get(0);
+            assertThat(groupRep.getId()).isEqualTo(group.getId());
+            assertThat(groupRep.getName()).isEqualTo(groupName);
+
+        }
+        
+        
+    }
+    
 }

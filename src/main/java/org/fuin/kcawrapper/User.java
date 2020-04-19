@@ -19,6 +19,7 @@ package org.fuin.kcawrapper;
 
 import static java.util.Arrays.asList;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -84,6 +85,28 @@ public final class User {
      */
     public final UserResource getResource() {
         return resource;
+    }
+
+    /**
+     * Make user join the given groups.
+     * 
+     * @param names
+     *            Group names.
+     */
+    public final void joinGroups(final Group...groups) {
+        joinGroups(Arrays.asList(groups));
+    }
+    
+    /**
+     * Make user join the given groups.
+     * 
+     * @param names
+     *            Group names.
+     */
+    public final void joinGroups(final List<Group> groups) {
+        for (final Group group : groups) {
+            resource.joinGroup(group.getId());
+        }        
     }
 
     /**
