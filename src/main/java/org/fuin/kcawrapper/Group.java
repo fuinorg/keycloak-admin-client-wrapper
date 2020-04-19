@@ -110,6 +110,36 @@ public final class Group {
     }
 
     /**
+     * Adds the given client roles to the group.
+     * 
+     * @param client
+     *            Client the roles are associated with.
+     * @param roles
+     *            Roles from the client to add.
+     */
+    public final void addClientRoles(final Client client, final Roles roles) {
+        resource.roles().clientLevel(client.getUUID()).add(roles.getList());
+    }
+
+    /**
+     * Adds the given client roles to the group if they are not already assigned.
+     * The function fails with a runtime exception if any of the roles is not found within the client.
+     * 
+     * @param client
+     *            Client the roles are associated with.
+     * @param roleNames
+     *            Name of the roles from the client to add to the group.
+     */
+    public final void addClientRoles(final Client client, final String...roleNames) {
+        final Roles currentClientRoles = clientRoles(client);
+        final Roles expectedRoles = client.getRoles().findByNamesOrFail(roleNames);
+        final Roles missingRoles = currentClientRoles.missing(expectedRoles);
+        if (!missingRoles.isEmpty()) {
+            addClientRoles(client, missingRoles);
+        }        
+    }
+
+    /**
      * Creates a group.
      * 
      * @param realm

@@ -22,10 +22,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.keycloak.representations.idm.RoleRepresentation;
 
@@ -34,43 +32,21 @@ import org.keycloak.representations.idm.RoleRepresentation;
  */
 public class RolesTest {
 
-    private static List<RoleRepresentation> list;
-
-    private static RoleRepresentation one;
-
-    private static RoleRepresentation two;
-
-    private static RoleRepresentation three;
-
-    @BeforeAll
-    public static void setup() {
-        list = new ArrayList<>();
-        one = new RoleRepresentation();
-        one.setName("one");
-        list.add(one);
-        two = new RoleRepresentation();
-        two.setName("two");
-        list.add(two);
-        three = new RoleRepresentation();
-        three.setName("three");
-        list.add(three);
-    }
-
     @Test
     public void testFindByName() {
 
-        assertThat(new Roles(list).findByName("one")).isEqualTo(one);
-        assertThat(new Roles(list).findByName("four")).isNull();
+        assertThat(roles().findByName("one").getName()).isEqualTo("one");
+        assertThat(roles().findByName("four")).isNull();
 
     }
 
     @Test
     public void testFindByNameOrFail() {
 
-        assertThat(new Roles(list).findByNameOrFail("one")).isEqualTo(one);
+        assertThat(roles().findByNameOrFail("one").getName()).isEqualTo("one");
 
         try {
-            new Roles(list).findByNameOrFail("four");
+            roles().findByNameOrFail("four");
             fail();
         } catch (final RuntimeException ex) {
             assertThat(ex.getMessage()).isEqualTo("Role 'four' not found: [one, two, three]");
@@ -81,10 +57,10 @@ public class RolesTest {
     @Test
     public void testFindByNamesOrFail() {
 
-        assertThat(new Roles(list).findByNamesOrFail("one", "two", "three")).hasSameElementsAs(list);
+        assertThat(roles().findByNamesOrFail("one", "two", "three").asNames()).hasSameElementsAs(roles().asNames());
 
         try {
-            new Roles(list).findByNamesOrFail("one", "two", "three", "four");
+            roles().findByNamesOrFail("one", "two", "three", "four");
             fail();
         } catch (final RuntimeException ex) {
             assertThat(ex.getMessage()).isEqualTo("Role 'four' not found: [one, two, three]");
@@ -95,33 +71,33 @@ public class RolesTest {
     @Test
     public void testAsNames() {
 
-        assertThat(new Roles(list).asNames()).hasSameElementsAs(Arrays.asList(new String[] { "one", "two", "three" }));
+        assertThat(roles().asNames()).hasSameElementsAs(Arrays.asList(new String[] { "one", "two", "three" }));
 
     }
 
     @Test
     public void testMissing() {
 
-        assertThat(new Roles(list).missing(Collections.emptyList())).isEmpty();
-        assertThat(new Roles(list).missing(create("one"))).isEmpty();
-        assertThat(new Roles(list).missing(create("one", "two"))).isEmpty();
-        assertThat(new Roles(list).missing(create("one", "two", "three"))).isEmpty();
-        assertThat(names(new Roles(list).missing(create("one", "two", "three", "four")))).hasSameElementsAs(names(create("four")));
+        assertThat(roles().missing(new Roles()).isEmpty()).isTrue();
+        assertThat(roles().missing(roles("one")).isEmpty()).isTrue();
+        assertThat(roles().missing(roles("one", "two")).isEmpty()).isTrue();
+        assertThat(roles().missing(roles("one", "two", "three")).isEmpty()).isTrue();
+        assertThat(roles().missing(roles("one", "two", "three", "four")).asNames()).hasSameElementsAs(roles("four").asNames());
 
     }
-    
-    private static List<String> names(List<RoleRepresentation> list) {
-        return new Roles(list).asNames();
-    }
 
-    private static List<RoleRepresentation> create(final String... names) {
+    private static Roles roles(final String... names) {
         final List<RoleRepresentation> results = new ArrayList<>();
         for (final String name : names) {
             final RoleRepresentation entry = new RoleRepresentation();
             entry.setName(name);
             results.add(entry);
         }
-        return results;
+        return new Roles(results);
+    }
+
+    private static Roles roles() {
+        return roles("one", "two", "three");
     }
 
 }
