@@ -35,7 +35,9 @@ public final class Group {
 
     private final Realm realm;
 
-    private final String id;
+    private final String uuid;
+
+    private final String name;
 
     private final GroupResource resource;
 
@@ -44,15 +46,18 @@ public final class Group {
      * 
      * @param realm
      *            Realm the group belongs to.
-     * @param id
+     * @param uuid
      *            Unique group identifier.
+     * @param name
+     *            Unique group name.
      * @param resource
      *            Associated group resource.
      */
-    private Group(final Realm realm, final String id, final GroupResource resource) {
+    private Group(final Realm realm, final String uuid, final String name, final GroupResource resource) {
         super();
         this.realm = realm;
-        this.id = id;
+        this.uuid = uuid;
+        this.name = name;
         this.resource = resource;
     }
 
@@ -70,8 +75,17 @@ public final class Group {
      * 
      * @return ID that is used for GET operations on the group resource.
      */
-    public final String getId() {
-        return id;
+    public final String getUUID() {
+        return uuid;
+    }
+
+    /**
+     * Returns the unique name of the group.
+     * 
+     * @return Unique group name.
+     */
+    public final String getName() {
+        return name;
     }
 
     /**
@@ -81,6 +95,18 @@ public final class Group {
      */
     public final GroupResource getResource() {
         return resource;
+    }
+
+    /**
+     * Returns the client roles that are assigned to the group.
+     * 
+     * @param client
+     *            Client to return group roles for.
+     * 
+     * @return All group client roles.
+     */
+    public final Roles clientRoles(final Client client) {
+        return new Roles(resource.roles().clientLevel(client.getUUID()).listAll());
     }
 
     /**
@@ -103,7 +129,7 @@ public final class Group {
             KcaUtils.ensureCreated("group " + name, response);
             final String id = KcaUtils.extractId(response);
             final GroupResource groupRes = realm.getResource().groups().group(id);
-            return new Group(realm, id, groupRes);
+            return new Group(realm, id, name, groupRes);
         }
 
     }
@@ -127,7 +153,7 @@ public final class Group {
             if (groupRep.getName().equals(name)) {
                 LOG.debug("Found group '{}'", name);
                 final GroupResource groupRes = realm.getResource().groups().group(groupRep.getId());
-                return new Group(realm, groupRep.getId(), groupRes);
+                return new Group(realm, groupRep.getId(), name, groupRes);
             }
         }
         return null;

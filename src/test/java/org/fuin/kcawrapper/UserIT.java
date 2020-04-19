@@ -74,7 +74,7 @@ public class UserIT extends BaseTest {
             final List<GroupRepresentation> groupReps = user.getResource().groups();
             assertThat(groupReps).hasSize(1);
             final GroupRepresentation groupRep = groupReps.get(0);
-            assertThat(groupRep.getId()).isEqualTo(group.getId());
+            assertThat(groupRep.getId()).isEqualTo(group.getUUID());
             assertThat(groupRep.getName()).isEqualTo(groupName);
 
         }

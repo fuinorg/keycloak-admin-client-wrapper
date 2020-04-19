@@ -36,7 +36,9 @@ public final class Client {
 
     private final Realm realm;
 
-    private final String id;
+    private final String uuid;
+
+    private final String clientId;
 
     private final ClientResource resource;
 
@@ -45,15 +47,18 @@ public final class Client {
      * 
      * @param realm
      *            Realm the client belongs to.
-     * @param id
+     * @param uuid
+     *            Unique client identifier.
+     * @param clientId
      *            Unique client identifier.
      * @param resource
      *            Associated client resource.
      */
-    private Client(final Realm realm, final String id, final ClientResource resource) {
+    private Client(final Realm realm, final String uuid, final String clientId, final ClientResource resource) {
         super();
         this.realm = realm;
-        this.id = id;
+        this.uuid = uuid;
+        this.clientId = clientId;
         this.resource = resource;
     }
 
@@ -71,8 +76,17 @@ public final class Client {
      * 
      * @return ID that is used for GET operations on the client resource.
      */
-    public final String getId() {
-        return id;
+    public final String getUUID() {
+        return uuid;
+    }
+
+    /**
+     * Returns the client identifier.
+     * 
+     * @return Client ID.
+     */
+    public final String getClientId() {
+        return clientId;
     }
 
     /**
@@ -82,6 +96,15 @@ public final class Client {
      */
     public final ClientResource getResource() {
         return resource;
+    }
+
+    /**
+     * Returns the defined client roles.
+     * 
+     * @return All available client roles.
+     */
+    public final Roles getRoles() {
+        return new Roles(resource.roles().list());
     }
 
     /**
@@ -136,7 +159,7 @@ public final class Client {
             final String id = KcaUtils.extractId(response);
             LOG.debug("Created client '{}'", clientId);
             final ClientResource clientRes = realm.getResource().clients().get(id);
-            return new Client(realm, id, clientRes);
+            return new Client(realm, id, clientId, clientRes);
         }
 
     }
@@ -160,7 +183,7 @@ public final class Client {
             if (clientId.equals(clientRep.getClientId())) {
                 LOG.debug("Found client '{}'", clientId);
                 final ClientResource clientRes = realm.getResource().clients().get(clientRep.getId());
-                return new Client(realm, clientRep.getId(), clientRes);
+                return new Client(realm, clientRep.getId(), clientId, clientRes);
             }
         }
         return null;

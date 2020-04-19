@@ -39,8 +39,10 @@ public final class User {
 
     private final Realm realm;
 
-    private final String id;
+    private final String uuid;
 
+    private final String name;
+    
     private final UserResource resource;
 
     /**
@@ -48,15 +50,18 @@ public final class User {
      * 
      * @param realm
      *            Realm the user belongs to.
-     * @param id
+     * @param uuid
      *            Unique user identifier.
+     * @param name
+     *            Unique name of the user.
      * @param resource
      *            Associated user resource.
      */
-    private User(final Realm realm, final String id, final UserResource resource) {
+    private User(final Realm realm, final String uuid, final String name, final UserResource resource) {
         super();
         this.realm = realm;
-        this.id = id;
+        this.uuid = uuid;
+        this.name = name;
         this.resource = resource;
     }
 
@@ -74,8 +79,17 @@ public final class User {
      * 
      * @return ID that is used for GET operations on the user resource.
      */
-    public final String getId() {
-        return id;
+    public final String getUUID() {
+        return uuid;
+    }
+
+    /**
+     * Returns the unique name of the user.
+     * 
+     * @return Unique user name.
+     */
+    public final String getName() {
+        return name;
     }
 
     /**
@@ -93,10 +107,21 @@ public final class User {
      * @param names
      *            Group names.
      */
-    public final void joinGroups(final Group...groups) {
+    public final void joinGroups(final Group... groups) {
         joinGroups(Arrays.asList(groups));
     }
-    
+
+    /**
+     * Returns the client roles that are assigned to the user.
+     * 
+     * @param client Client to return user roles for.
+     * 
+     * @return All user client roles.
+     */
+    public final Roles clientRoles(final Client client) {
+        return new Roles(resource.roles().clientLevel(client.getUUID()).listAll());
+    }
+
     /**
      * Make user join the given groups.
      * 
@@ -105,8 +130,8 @@ public final class User {
      */
     public final void joinGroups(final List<Group> groups) {
         for (final Group group : groups) {
-            resource.joinGroup(group.getId());
-        }        
+            resource.joinGroup(group.getUUID());
+        }
     }
 
     /**
@@ -140,7 +165,7 @@ public final class User {
             KcaUtils.ensureCreated("user " + name, response);
             final String id = KcaUtils.extractId(response);
             final UserResource userResource = realm.getResource().users().get(id);
-            return new User(realm, id, userResource);
+            return new User(realm, id, name, userResource);
         }
 
     }
@@ -164,7 +189,7 @@ public final class User {
             if (userRep.getUsername().equals(name)) {
                 LOG.debug("Found user '{}'", name);
                 final UserResource userResource = realm.getResource().users().get(userRep.getId());
-                return new User(realm, userRep.getId(), userResource);
+                return new User(realm, userRep.getId(), name, userResource);
             }
         }
         return null;
