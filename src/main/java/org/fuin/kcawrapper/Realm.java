@@ -122,7 +122,10 @@ public final class Realm {
      * @return Representation or {@literal null} if not found.
      */
     public static Realm find(final Keycloak keycloak, final String name) {
-        List<RealmRepresentation> realms = keycloak.realms().findAll();
+        final List<RealmRepresentation> realms = keycloak.realms().findAll();
+        if (realms == null) {
+            return null;
+        }
         for (final RealmRepresentation realm : realms) {
             if (realm.getRealm().equals(name)) {
                 LOG.debug("Found realm '{}'", name);
