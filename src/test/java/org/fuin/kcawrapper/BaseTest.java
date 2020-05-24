@@ -40,7 +40,7 @@ public abstract class BaseTest {
     static final GenericContainer KEYCLOAK_CONTAINER;
 
     static {
-        KEYCLOAK_CONTAINER = new GenericContainer("jboss/keycloak").withExposedPorts(8080).withEnv("KEYCLOAK_USER", ADMIN_USER)
+        KEYCLOAK_CONTAINER = new GenericContainer("jboss/keycloak:9.0.3").withExposedPorts(8080).withEnv("KEYCLOAK_USER", ADMIN_USER)
                 .withEnv("KEYCLOAK_PASSWORD", ADMIN_PW).waitingFor(Wait.forHttp("/auth").withStartupTimeout(Duration.of(2L, MINUTES)));
         KEYCLOAK_CONTAINER.start();
     }
