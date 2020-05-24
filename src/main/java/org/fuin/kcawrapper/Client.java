@@ -118,10 +118,17 @@ public final class Client {
      *            Secret for the client.
      * @param uri
      *            Redirect URI.
+     * @param standardFlow
+     *            Enables the "Standard Flow" (Authorization Code Flow). This is recommend you use to authenticate and authorize with
+     *            browser-based applications. Can be ussed for example by the Swagger UI.
+     * @param uri
+     *            Enables the "Direct Access Grants" (Resource Owner Password Credentials Grant) flow. This means "ServiceId/ServicePW" plus
+     *            "UserName/UserPw" are used for authentication.
      * 
      * @return New client.
      */
-    public static Client createOpenIdConnectWithSecret(final Realm realm, final String clientId, final String secret, final String uri) {
+    public static Client createOpenIdConnectWithSecret(final Realm realm, final String clientId, final String secret, final String uri,
+            final boolean standardFlow, final boolean directAccessGrants) {
 
         final ClientRepresentation clientRep = new ClientRepresentation();
         clientRep.setClientId(clientId);
@@ -132,9 +139,8 @@ public final class Client {
         clientRep.setRedirectUris(redirectUris);
         clientRep.setSecret(secret);
         clientRep.setClientAuthenticatorType("client-secret");
-        clientRep.setStandardFlowEnabled(true);
-        clientRep.setDirectAccessGrantsEnabled(true);
-        clientRep.setServiceAccountsEnabled(true);
+        clientRep.setStandardFlowEnabled(standardFlow);
+        clientRep.setDirectAccessGrantsEnabled(directAccessGrants);
 
         return create(realm, clientId, clientRep);
 
@@ -220,14 +226,20 @@ public final class Client {
      *            Secret for the client.
      * @param uri
      *            Redirect URI.
+     * @param standardFlow
+     *            Enables the "Standard Flow" (Authorization Code Flow). This is recommend you use to authenticate and authorize with
+     *            browser-based applications. Can be used for example for the Swagger UI.
+     * @param uri
+     *            Enables the "Direct Access Grants" (Resource Owner Password Credentials Grant) flow. This means "ServiceId/ServicePW" plus
+     *            "UserName/UserPw" are used for authentication.
      * 
      * @return Resource.
      */
     public static Client findOrCreateOpenIdConnectWithSecret(final Realm realm, final String clientId, final String secret,
-            final String uri) {
+            final String uri, final boolean standardFlow, final boolean directAccessGrants) {
         final Client client = find(realm, clientId);
         if (client == null) {
-            return createOpenIdConnectWithSecret(realm, clientId, secret, uri);
+            return createOpenIdConnectWithSecret(realm, clientId, secret, uri, standardFlow, directAccessGrants);
         }
         return client;
     }

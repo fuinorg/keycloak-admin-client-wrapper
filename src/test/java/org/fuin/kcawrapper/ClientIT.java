@@ -44,7 +44,7 @@ public class ClientIT extends BaseTest {
             assertThat(Client.find(realm, CLIENT)).isNull();
 
             // TEST
-            final Client client = Client.findOrCreateOpenIdConnectWithSecret(realm, CLIENT, "abc", "http://localhost:8080/api");
+            final Client client = Client.findOrCreateOpenIdConnectWithSecret(realm, CLIENT, "abc", "http://localhost:8080/api", true, true);
 
             // VERIFY
             assertThat(client).isNotNull();
