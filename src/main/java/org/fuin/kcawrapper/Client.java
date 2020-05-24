@@ -147,6 +147,35 @@ public final class Client {
     }
 
     /**
+     * Creates a typical Open ID connect client with implicit flow and redirect URI.
+     * 
+     * @param realm
+     *            Realm the client belongs to.
+     * @param clientId
+     *            Client identifier.
+     * @param uri
+     *            Redirect URI.
+     * 
+     * @return New client.
+     */
+    public static Client createOpenIdConnectWithImplicit(final Realm realm, final String clientId, final String uri) {
+
+        final ClientRepresentation clientRep = new ClientRepresentation();
+        clientRep.setClientId(clientId);
+        clientRep.setProtocol("openid-connect");
+        clientRep.setPublicClient(true);
+        final List<String> redirectUris = new ArrayList<>();
+        redirectUris.add(uri);
+        clientRep.setRedirectUris(redirectUris);
+        clientRep.setStandardFlowEnabled(false);
+        clientRep.setImplicitFlowEnabled(true);
+        clientRep.setDirectAccessGrantsEnabled(false);
+
+        return create(realm, clientId, clientRep);
+
+    }
+
+    /**
      * Creates a client based on a representation.
      * 
      * @param realm
@@ -240,6 +269,27 @@ public final class Client {
         final Client client = find(realm, clientId);
         if (client == null) {
             return createOpenIdConnectWithSecret(realm, clientId, secret, uri, standardFlow, directAccessGrants);
+        }
+        return client;
+    }
+
+    /**
+     * Locates a user by it's client identifier or creates it if it does not exist yet.<br>
+     * Creates a typical Open ID connect client with implicit flow and redirect URI.
+     * 
+     * @param realm
+     *            Realm the client belongs to.
+     * @param clientId
+     *            Client identifier.
+     * @param uri
+     *            Redirect URI.
+     * 
+     * @return Resource.
+     */
+    public static Client findOrCreateOpenIdConnectWithImplicit(final Realm realm, final String clientId, final String uri) {
+        final Client client = find(realm, clientId);
+        if (client == null) {
+            return createOpenIdConnectWithImplicit(realm, clientId, uri);
         }
         return client;
     }
