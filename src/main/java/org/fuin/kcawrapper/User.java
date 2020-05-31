@@ -42,7 +42,7 @@ public final class User {
     private final String uuid;
 
     private final String name;
-    
+
     private final UserResource resource;
 
     /**
@@ -112,9 +112,45 @@ public final class User {
     }
 
     /**
+     * Returns the realm roles that are assigned to the user.
+     * 
+     * @return All user realm roles.
+     */
+    public final Roles realmRoles() {
+        return new Roles(resource.roles().realmLevel().listAll());
+    }
+
+    /**
+     * Adds the given realm roles to the user.
+     * 
+     * @param roles
+     *            Roles from the realm to add.
+     */
+    public final void addRealmRoles(final Roles roles) {
+        resource.roles().realmLevel().add(roles.getList());
+    }
+
+    /**
+     * Adds the given realm roles to the user if they are not already assigned. The function fails with a runtime exception if any of the
+     * roles is not found within the realm.
+     * 
+     * @param roleNames
+     *            Name of the roles from the realm to add to the user.
+     */
+    public final void addRealmRoles(final String... roleNames) {
+        final Roles currentRealmRoles = realmRoles();
+        final Roles expectedRoles = realm.getRoles().findByNamesOrFail(roleNames);
+        final Roles missingRoles = currentRealmRoles.missing(expectedRoles);
+        if (!missingRoles.isEmpty()) {
+            addRealmRoles(missingRoles);
+        }
+    }
+
+    /**
      * Returns the client roles that are assigned to the user.
      * 
-     * @param client Client to return user roles for.
+     * @param client
+     *            Client to return user roles for.
      * 
      * @return All user client roles.
      */
@@ -135,23 +171,23 @@ public final class User {
     }
 
     /**
-     * Adds the given client roles to the user if they are not already assigned.
-     * The function fails with a runtime exception if any of the roles is not found within the client.
+     * Adds the given client roles to the user if they are not already assigned. The function fails with a runtime exception if any of the
+     * roles is not found within the client.
      * 
      * @param client
      *            Client the roles are associated with.
      * @param roleNames
      *            Name of the roles from the client to add to the user.
      */
-    public final void addClientRoles(final Client client, final String...roleNames) {
+    public final void addClientRoles(final Client client, final String... roleNames) {
         final Roles currentClientRoles = clientRoles(client);
         final Roles expectedRoles = client.getRoles().findByNamesOrFail(roleNames);
         final Roles missingRoles = currentClientRoles.missing(expectedRoles);
         if (!missingRoles.isEmpty()) {
             addClientRoles(client, missingRoles);
-        }        
+        }
     }
-    
+
     /**
      * Make user join the given groups.
      * 

@@ -90,6 +90,15 @@ public final class Realm {
     }
 
     /**
+     * Returns the defined roles.
+     * 
+     * @return All available roles.
+     */
+    public final Roles getRoles() {
+        return new Roles(resource.roles().list());
+    }
+
+    /**
      * Creates a realm.
      * 
      * @param keycloak
