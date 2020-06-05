@@ -19,6 +19,11 @@ package org.fuin.kcawrapper;
 
 import java.util.List;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang3.Validate;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.keycloak.admin.client.resource.RoleResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.slf4j.Logger;
@@ -53,6 +58,11 @@ public final class Role {
      */
     private Role(final Realm realm, final String uuid, final String name, final RoleResource resource) {
         super();
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(uuid, "uuid==null or empty");
+        Validate.notEmpty(name, "name==null or empty");
+        Validate.notNull(resource, "resource==null");
+
         this.realm = realm;
         this.uuid = uuid;
         this.name = name;
@@ -64,6 +74,7 @@ public final class Role {
      * 
      * @return Realm.
      */
+    @NotNull
     public final Realm getRealm() {
         return realm;
     }
@@ -73,6 +84,7 @@ public final class Role {
      * 
      * @return ID that is used for GET operations on the role resource.
      */
+    @NotEmpty
     public final String getUUID() {
         return uuid;
     }
@@ -82,6 +94,7 @@ public final class Role {
      * 
      * @return Unique role name.
      */
+    @NotEmpty
     public final String getName() {
         return name;
     }
@@ -91,6 +104,7 @@ public final class Role {
      * 
      * @return Associated role resource.
      */
+    @NotNull
     public final RoleResource getResource() {
         return resource;
     }
@@ -107,7 +121,11 @@ public final class Role {
      * 
      * @return New role.
      */
-    public static Role create(final Realm realm, final String name, final String description) {
+    @NotNull
+    public static Role create(@NotNull final Realm realm, @NotEmpty final String name, @NotEmpty final String description) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(name, "name==null or empty");
+        Validate.notEmpty(name, "description==null or empty");
 
         RoleRepresentation roleRep = new RoleRepresentation();
         roleRep.setName(name);
@@ -133,7 +151,11 @@ public final class Role {
      * 
      * @return Representation or {@literal null} if not found.
      */
-    public static Role find(final Realm realm, final String name) {
+    @Nullable
+    public static Role find(@NotNull final Realm realm, @NotEmpty final String name) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(name, "name==null or empty");
+
         final List<RoleRepresentation> roles = realm.getResource().roles().list();
         if (roles == null) {
             return null;
@@ -157,7 +179,11 @@ public final class Role {
      * 
      * @return Representation.
      */
-    public static Role findOrFail(final Realm realm, final String name) {
+    @NotNull
+    public static Role findOrFail(@NotNull final Realm realm, @NotEmpty final String name) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(name, "name==null or empty");
+
         final Role role = find(realm, name);
         if (role == null) {
             throw new RuntimeException("Role '" + name + "' should exist, but was not found");
@@ -178,7 +204,12 @@ public final class Role {
      * 
      * @return Role.
      */
-    public static Role findOrCreate(final Realm realm, final String name, final String description) {
+    @NotNull
+    public static Role findOrCreate(@NotNull final Realm realm, @NotEmpty final String name, @NotEmpty final String description) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(name, "name==null or empty");
+        Validate.notEmpty(name, "description==null or empty");
+
         final Role role = find(realm, name);
         if (role == null) {
             return create(realm, name, description);

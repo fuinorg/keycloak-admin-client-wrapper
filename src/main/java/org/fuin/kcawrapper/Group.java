@@ -19,8 +19,12 @@ package org.fuin.kcawrapper;
 
 import java.util.List;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.Validate;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.keycloak.admin.client.resource.GroupResource;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.slf4j.Logger;
@@ -53,8 +57,14 @@ public final class Group {
      * @param resource
      *            Associated group resource.
      */
-    private Group(final Realm realm, final String uuid, final String name, final GroupResource resource) {
+    private Group(@NotNull final Realm realm, @NotEmpty final String uuid, @NotEmpty final String name,
+            @NotNull final GroupResource resource) {
         super();
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(uuid, "uuid==null or empty");
+        Validate.notEmpty(name, "name==null or empty");
+        Validate.notNull(resource, "resource==null");
+
         this.realm = realm;
         this.uuid = uuid;
         this.name = name;
@@ -66,6 +76,7 @@ public final class Group {
      * 
      * @return Realm.
      */
+    @NotNull
     public final Realm getRealm() {
         return realm;
     }
@@ -75,6 +86,7 @@ public final class Group {
      * 
      * @return ID that is used for GET operations on the group resource.
      */
+    @NotEmpty
     public final String getUUID() {
         return uuid;
     }
@@ -84,6 +96,7 @@ public final class Group {
      * 
      * @return Unique group name.
      */
+    @NotEmpty
     public final String getName() {
         return name;
     }
@@ -93,6 +106,7 @@ public final class Group {
      * 
      * @return Associated group resource.
      */
+    @NotNull
     public final GroupResource getResource() {
         return resource;
     }
@@ -102,6 +116,7 @@ public final class Group {
      * 
      * @return All group realm roles.
      */
+    @NotNull
     public final Roles realmRoles() {
         return new Roles(resource.roles().realmLevel().listAll());
     }
@@ -112,7 +127,9 @@ public final class Group {
      * @param roles
      *            Roles from the realm to add.
      */
-    public final void addRealmRoles(final Roles roles) {
+    public final void addRealmRoles(@NotNull final Roles roles) {
+        Validate.notNull(roles, "roles==null");
+
         resource.roles().realmLevel().add(roles.getList());
     }
 
@@ -123,7 +140,10 @@ public final class Group {
      * @param roleNames
      *            Name of the roles from the realm to add to the group.
      */
-    public final void addRealmRoles(final String... roleNames) {
+    public final void addRealmRoles(@NotEmpty final String... roleNames) {
+        Validate.notEmpty(roleNames, "roleNames==null or empty");
+        Validate.noNullElements(roleNames, "null elements are not allowed for roleNames");
+
         final Roles currentRealmRoles = realmRoles();
         final Roles expectedRoles = realm.getRoles().findByNamesOrFail(roleNames);
         final Roles missingRoles = currentRealmRoles.missing(expectedRoles);
@@ -140,7 +160,10 @@ public final class Group {
      * 
      * @return All group client roles.
      */
-    public final Roles clientRoles(final Client client) {
+    @NotNull
+    public final Roles clientRoles(@NotNull final Client client) {
+        Validate.notNull(client, "client==null");
+
         return new Roles(resource.roles().clientLevel(client.getUUID()).listAll());
     }
 
@@ -152,7 +175,10 @@ public final class Group {
      * @param roles
      *            Roles from the client to add.
      */
-    public final void addClientRoles(final Client client, final Roles roles) {
+    public final void addClientRoles(@NotNull final Client client, @NotNull final Roles roles) {
+        Validate.notNull(client, "client==null");
+        Validate.notNull(roles, "roles==null");
+
         resource.roles().clientLevel(client.getUUID()).add(roles.getList());
     }
 
@@ -165,7 +191,11 @@ public final class Group {
      * @param roleNames
      *            Name of the roles from the client to add to the group.
      */
-    public final void addClientRoles(final Client client, final String... roleNames) {
+    public final void addClientRoles(@NotNull final Client client, @NotEmpty final String... roleNames) {
+        Validate.notNull(client, "client==null");
+        Validate.notEmpty(roleNames, "roleNames==null or empty");
+        Validate.noNullElements(roleNames, "null elements are not allowed for roleNames");
+
         final Roles currentClientRoles = clientRoles(client);
         final Roles expectedRoles = client.getRoles().findByNamesOrFail(roleNames);
         final Roles missingRoles = currentClientRoles.missing(expectedRoles);
@@ -184,7 +214,11 @@ public final class Group {
      * 
      * @return New group.
      */
-    public static Group create(final Realm realm, final String name) {
+    @NotNull
+    public static Group create(@NotNull final Realm realm, @NotEmpty final String name) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(name, "name==null or empty");
+
         LOG.debug("Create group '{}'", name);
 
         final GroupRepresentation groupRep = new GroupRepresentation();
@@ -209,7 +243,11 @@ public final class Group {
      * 
      * @return Representation or {@literal null} if not found.
      */
-    public static Group find(final Realm realm, final String name) {
+    @Nullable
+    public static Group find(@NotNull final Realm realm, @NotEmpty final String name) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(name, "name==null or empty");
+
         final List<GroupRepresentation> groupReps = realm.getResource().groups().groups();
         if (groupReps == null) {
             return null;
@@ -234,7 +272,8 @@ public final class Group {
      * 
      * @return Resource of the realm.
      */
-    public static Group findOrCreate(final Realm realm, final String name) {
+    @NotNull
+    public static Group findOrCreate(@NotNull final Realm realm, @NotEmpty final String name) {
         final Group group = find(realm, name);
         if (group == null) {
             return create(realm, name);

@@ -20,8 +20,12 @@ package org.fuin.kcawrapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.Validate;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.slf4j.Logger;
@@ -54,8 +58,14 @@ public final class Client {
      * @param resource
      *            Associated client resource.
      */
-    private Client(final Realm realm, final String uuid, final String clientId, final ClientResource resource) {
+    private Client(@NotNull final Realm realm, @NotEmpty final String uuid, @NotEmpty final String clientId,
+            @NotNull final ClientResource resource) {
         super();
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(uuid, "uuid==null or empty");
+        Validate.notEmpty(clientId, "clientId==null or empty");
+        Validate.notNull(resource, "resource==null");
+
         this.realm = realm;
         this.uuid = uuid;
         this.clientId = clientId;
@@ -67,6 +77,7 @@ public final class Client {
      * 
      * @return Realm.
      */
+    @NotNull
     public final Realm getRealm() {
         return realm;
     }
@@ -76,6 +87,7 @@ public final class Client {
      * 
      * @return ID that is used for GET operations on the client resource.
      */
+    @NotEmpty
     public final String getUUID() {
         return uuid;
     }
@@ -85,6 +97,7 @@ public final class Client {
      * 
      * @return Client ID.
      */
+    @NotEmpty
     public final String getClientId() {
         return clientId;
     }
@@ -94,6 +107,7 @@ public final class Client {
      * 
      * @return Associated client resource.
      */
+    @NotNull
     public final ClientResource getResource() {
         return resource;
     }
@@ -103,6 +117,7 @@ public final class Client {
      * 
      * @return All available client roles.
      */
+    @NotNull
     public final Roles getRoles() {
         return new Roles(resource.roles().list());
     }
@@ -127,8 +142,14 @@ public final class Client {
      * 
      * @return New client.
      */
-    public static Client createOpenIdConnectWithSecret(final Realm realm, final String clientId, final String secret, final String uri,
-            final boolean standardFlow, final boolean directAccessGrants) {
+    @NotNull
+    public static Client createOpenIdConnectWithSecret(@NotNull final Realm realm, @NotEmpty final String clientId,
+            @NotEmpty final String secret, @NotEmpty final String uri, final boolean standardFlow, final boolean directAccessGrants) {
+
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(clientId, "clientId==null or empty");
+        Validate.notEmpty(secret, "secret==null or empty");
+        Validate.notEmpty(uri, "uri==null or empty");
 
         final ClientRepresentation clientRep = new ClientRepresentation();
         clientRep.setClientId(clientId);
@@ -158,7 +179,12 @@ public final class Client {
      * 
      * @return New client.
      */
-    public static Client createOpenIdConnectWithImplicit(final Realm realm, final String clientId, final String uri) {
+    @NotNull
+    public static Client createOpenIdConnectWithImplicit(@NotNull final Realm realm, @NotEmpty final String clientId,
+            @NotEmpty final String uri) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(clientId, "clientId==null or empty");
+        Validate.notEmpty(uri, "uri==null or empty");
 
         final ClientRepresentation clientRep = new ClientRepresentation();
         clientRep.setClientId(clientId);
@@ -187,7 +213,12 @@ public final class Client {
      * 
      * @return New client.
      */
-    public static Client create(final Realm realm, final String clientId, final ClientRepresentation clientRep) {
+    @NotNull
+    public static Client create(@NotNull final Realm realm, @NotEmpty final String clientId,
+            @NotNull final ClientRepresentation clientRep) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(clientId, "clientId==null or empty");
+        Validate.notNull(clientRep, "clientRep==null");
 
         try (final Response response = realm.getResource().clients().create(clientRep)) {
             KcaUtils.ensureCreated("client " + clientId, response);
@@ -209,7 +240,11 @@ public final class Client {
      * 
      * @return Representation or {@literal null} if not found.
      */
-    public static Client find(final Realm realm, final String clientId) {
+    @Nullable
+    public static Client find(@NotNull final Realm realm, @NotEmpty final String clientId) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(clientId, "clientId==null or empty");
+
         final List<ClientRepresentation> clients = realm.getResource().clients().findAll();
         if (clients == null) {
             return null;
@@ -234,7 +269,11 @@ public final class Client {
      * 
      * @return Representation.
      */
-    public static Client findOrFail(final Realm realm, final String clientId) {
+    @NotNull
+    public static Client findOrFail(@NotNull final Realm realm, @NotEmpty final String clientId) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(clientId, "clientId==null or empty");
+
         final Client client = find(realm, clientId);
         if (client == null) {
             throw new RuntimeException("Client '" + clientId + "' should exist, but was not found");
@@ -264,8 +303,14 @@ public final class Client {
      * 
      * @return Resource.
      */
-    public static Client findOrCreateOpenIdConnectWithSecret(final Realm realm, final String clientId, final String secret,
-            final String uri, final boolean standardFlow, final boolean directAccessGrants) {
+    @NotNull
+    public static Client findOrCreateOpenIdConnectWithSecret(@NotNull final Realm realm, @NotEmpty final String clientId,
+            @NotEmpty final String secret, @NotEmpty final String uri, final boolean standardFlow, final boolean directAccessGrants) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(clientId, "clientId==null or empty");
+        Validate.notEmpty(secret, "secret==null or empty");
+        Validate.notEmpty(uri, "uri==null or empty");
+
         final Client client = find(realm, clientId);
         if (client == null) {
             return createOpenIdConnectWithSecret(realm, clientId, secret, uri, standardFlow, directAccessGrants);
@@ -286,7 +331,13 @@ public final class Client {
      * 
      * @return Resource.
      */
-    public static Client findOrCreateOpenIdConnectWithImplicit(final Realm realm, final String clientId, final String uri) {
+    @NotNull
+    public static Client findOrCreateOpenIdConnectWithImplicit(@NotNull final Realm realm, @NotEmpty final String clientId,
+            @NotEmpty final String uri) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(clientId, "clientId==null or empty");
+        Validate.notEmpty(uri, "uri==null or empty");
+
         final Client client = find(realm, clientId);
         if (client == null) {
             return createOpenIdConnectWithImplicit(realm, clientId, uri);
@@ -306,7 +357,13 @@ public final class Client {
      * 
      * @return Client.
      */
-    public static Client findOrCreate(final Realm realm, final String clientId, final ClientRepresentation representation) {
+    @NotNull
+    public static Client findOrCreate(@NotNull final Realm realm, @NotEmpty final String clientId,
+            @NotNull final ClientRepresentation representation) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(clientId, "clientId==null or empty");
+        Validate.notNull(representation, "representation==null");
+
         final Client client = find(realm, clientId);
         if (client == null) {
             return create(realm, clientId, representation);

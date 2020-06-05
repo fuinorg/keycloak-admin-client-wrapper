@@ -19,6 +19,11 @@ package org.fuin.kcawrapper;
 
 import java.util.List;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang3.Validate;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.RealmRepresentation;
@@ -48,8 +53,12 @@ public final class Realm {
      * @param resource
      *            Associated realm resource.
      */
-    private Realm(final Keycloak keycloak, final String name, final RealmResource resource) {
+    private Realm(@NotNull final Keycloak keycloak, @NotEmpty final String name, @NotEmpty final RealmResource resource) {
         super();
+        Validate.notNull(keycloak, "keycloak==null");
+        Validate.notEmpty(name, "name==null or empty");
+        Validate.notNull(resource, "resource==null");
+
         this.keycloak = keycloak;
         this.name = name;
         this.resource = resource;
@@ -60,6 +69,7 @@ public final class Realm {
      * 
      * @return Keycloak instance.
      */
+    @NotNull
     public final Keycloak getKeycloak() {
         return keycloak;
     }
@@ -69,6 +79,7 @@ public final class Realm {
      * 
      * @return Unique realm name.
      */
+    @NotEmpty
     public final String getName() {
         return name;
     }
@@ -78,6 +89,7 @@ public final class Realm {
      * 
      * @return Associated realm resource.
      */
+    @NotNull
     public final RealmResource getResource() {
         return resource;
     }
@@ -94,6 +106,7 @@ public final class Realm {
      * 
      * @return All available roles.
      */
+    @NotNull
     public final Roles getRoles() {
         return new Roles(resource.roles().list());
     }
@@ -110,7 +123,11 @@ public final class Realm {
      * 
      * @return Resource of the created realm.
      */
-    public static Realm create(final Keycloak keycloak, final String name, final boolean enable) {
+    @NotNull
+    public static Realm create(@NotNull final Keycloak keycloak, @NotEmpty final String name, final boolean enable) {
+        Validate.notNull(keycloak, "keycloak==null");
+        Validate.notEmpty(name, "name==null or empty");
+
         LOG.debug("Create realm '{}'", name);
         final RealmRepresentation realmRep = new RealmRepresentation();
         realmRep.setRealm(name);
@@ -130,7 +147,11 @@ public final class Realm {
      * 
      * @return Representation or {@literal null} if not found.
      */
-    public static Realm find(final Keycloak keycloak, final String name) {
+    @Nullable
+    public static Realm find(@NotNull final Keycloak keycloak, @NotEmpty final String name) {
+        Validate.notNull(keycloak, "keycloak==null");
+        Validate.notEmpty(name, "name==null or empty");
+
         final List<RealmRepresentation> realms = keycloak.realms().findAll();
         if (realms == null) {
             return null;
@@ -156,7 +177,11 @@ public final class Realm {
      * 
      * @return Resource of the realm.
      */
-    public static Realm findOrCreate(final Keycloak keycloak, final String name, final boolean enable) {
+    @NotNull
+    public static Realm findOrCreate(@NotNull final Keycloak keycloak, @NotEmpty final String name, final boolean enable) {
+        Validate.notNull(keycloak, "keycloak==null");
+        Validate.notEmpty(name, "name==null or empty");
+
         final Realm realm = find(keycloak, name);
         if (realm == null) {
             return create(keycloak, name, enable);

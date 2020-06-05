@@ -22,6 +22,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang3.Validate;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.keycloak.representations.idm.RoleRepresentation;
 
 /**
@@ -45,7 +50,7 @@ public final class Roles implements Iterable<RoleRepresentation> {
      * @param roles
      *            Roles to wrap.
      */
-    public Roles(final List<RoleRepresentation> roles) {
+    public Roles(@Nullable final List<RoleRepresentation> roles) {
         super();
         if (roles == null) {
             this.list = new ArrayList<>();
@@ -59,6 +64,7 @@ public final class Roles implements Iterable<RoleRepresentation> {
      * 
      * @return List of roles.
      */
+    @NotNull
     public List<RoleRepresentation> getList() {
         return new ArrayList<>(list);
     }
@@ -71,7 +77,10 @@ public final class Roles implements Iterable<RoleRepresentation> {
      * 
      * @return Role or {@literal null} in case it was not found.
      */
-    public final RoleRepresentation findByName(final String name) {
+    @Nullable
+    public final RoleRepresentation findByName(@NotNull final String name) {
+        Validate.notEmpty(name, "name==null or empty");
+
         for (final RoleRepresentation role : list) {
             if (name.contentEquals(role.getName())) {
                 return role;
@@ -88,7 +97,10 @@ public final class Roles implements Iterable<RoleRepresentation> {
      * 
      * @return Role.
      */
-    public final RoleRepresentation findByNameOrFail(final String name) {
+    @NotNull
+    public final RoleRepresentation findByNameOrFail(@NotNull final String name) {
+        Validate.notEmpty(name, "name==null or empty");
+
         final RoleRepresentation role = findByName(name);
         if (role == null) {
             throw new RuntimeException("Role '" + name + "' not found: " + asNames());
@@ -104,7 +116,11 @@ public final class Roles implements Iterable<RoleRepresentation> {
      * 
      * @return Roles.
      */
-    public final Roles findByNamesOrFail(final String... names) {
+    @NotNull
+    public final Roles findByNamesOrFail(@NotEmpty final String... names) {
+        Validate.notEmpty(names, "names==null or empty");
+        Validate.noNullElements(names, "null elements are not allowed for names");
+
         List<RoleRepresentation> result = new ArrayList<>();
         for (String name : names) {
             RoleRepresentation role = findByName(name);
@@ -121,6 +137,7 @@ public final class Roles implements Iterable<RoleRepresentation> {
      * 
      * @return Names.
      */
+    @NotNull
     public final List<String> asNames() {
         final List<String> names = new ArrayList<>();
         for (RoleRepresentation role : list) {
@@ -137,7 +154,9 @@ public final class Roles implements Iterable<RoleRepresentation> {
      * 
      * @return List of roles that were missing in this list.
      */
-    public final Roles missing(final Roles expectedRoles) {
+    @NotNull
+    public final Roles missing(@NotNull final Roles expectedRoles) {
+        Validate.notNull(expectedRoles, "expectedRoles==null");
 
         if (list.isEmpty()) {
             return expectedRoles;
@@ -165,6 +184,7 @@ public final class Roles implements Iterable<RoleRepresentation> {
     }
 
     @Override
+    @NotNull
     public final Iterator<RoleRepresentation> iterator() {
         return list.iterator();
     }

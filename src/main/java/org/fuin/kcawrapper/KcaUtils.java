@@ -19,7 +19,12 @@ package org.fuin.kcawrapper;
 
 import java.net.URI;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang3.Validate;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Utility methods for the package.
@@ -40,7 +45,10 @@ public final class KcaUtils {
      * 
      * @return Unique identifier assigned by the l
      */
-    public static String extractId(final Response response) {
+    @Nullable
+    public static String extractId(@NotNull final Response response) {
+        Validate.notNull(response, "response==null");
+
         final URI location = response.getLocation();
         if (location == null) {
             return null;
@@ -57,7 +65,10 @@ public final class KcaUtils {
      * @param response
      *            Response to check for status 201.
      */
-    public static void ensureCreated(final String typeAndName, final Response response) {
+    public static void ensureCreated(@NotEmpty final String typeAndName, @NotNull final Response response) {
+        Validate.notEmpty(typeAndName, "typeAndName==null or empty");
+        Validate.notNull(response, "response==null");
+
         if (!response.getStatusInfo().equals(Response.Status.CREATED)) {
             final Response.StatusType statusInfo = response.getStatusInfo();
             throw new RuntimeException(

@@ -22,8 +22,12 @@ import static java.util.Arrays.asList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.Validate;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -57,8 +61,14 @@ public final class User {
      * @param resource
      *            Associated user resource.
      */
-    private User(final Realm realm, final String uuid, final String name, final UserResource resource) {
+    private User(@NotNull final Realm realm, @NotEmpty final String uuid, @NotEmpty final String name,
+            @NotNull final UserResource resource) {
         super();
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(uuid, "uuid==null or empty");
+        Validate.notEmpty(name, "name==null or empty");
+        Validate.notNull(resource, "resource==null");
+
         this.realm = realm;
         this.uuid = uuid;
         this.name = name;
@@ -70,6 +80,7 @@ public final class User {
      * 
      * @return Realm.
      */
+    @NotNull
     public final Realm getRealm() {
         return realm;
     }
@@ -79,6 +90,7 @@ public final class User {
      * 
      * @return ID that is used for GET operations on the user resource.
      */
+    @NotEmpty
     public final String getUUID() {
         return uuid;
     }
@@ -88,6 +100,7 @@ public final class User {
      * 
      * @return Unique user name.
      */
+    @NotEmpty
     public final String getName() {
         return name;
     }
@@ -97,6 +110,7 @@ public final class User {
      * 
      * @return Associated user resource.
      */
+    @NotNull
     public final UserResource getResource() {
         return resource;
     }
@@ -107,7 +121,10 @@ public final class User {
      * @param names
      *            Group names.
      */
-    public final void joinGroups(final Group... groups) {
+    public final void joinGroups(@NotNull final Group... groups) {
+        Validate.notEmpty(groups, "groups==null or empty");
+        Validate.noNullElements(groups, "null elements are not allowed for groups");
+
         joinGroups(Arrays.asList(groups));
     }
 
@@ -116,6 +133,7 @@ public final class User {
      * 
      * @return All user realm roles.
      */
+    @NotNull
     public final Roles realmRoles() {
         return new Roles(resource.roles().realmLevel().listAll());
     }
@@ -126,7 +144,9 @@ public final class User {
      * @param roles
      *            Roles from the realm to add.
      */
-    public final void addRealmRoles(final Roles roles) {
+    public final void addRealmRoles(@NotNull final Roles roles) {
+        Validate.notNull(roles, "roles==null");
+
         resource.roles().realmLevel().add(roles.getList());
     }
 
@@ -135,9 +155,12 @@ public final class User {
      * roles is not found within the realm.
      * 
      * @param roleNames
-     *            Name of the roles from the realm to add to the user.
+     *            Name of the roles from the realm to add to the user. A name cannot be null or empty.
      */
-    public final void addRealmRoles(final String... roleNames) {
+    public final void addRealmRoles(@NotNull final String... roleNames) {
+        Validate.notEmpty(roleNames, "roleNames==null or empty");
+        Validate.noNullElements(roleNames, "null elements are not allowed for roleNames");
+
         final Roles currentRealmRoles = realmRoles();
         final Roles expectedRoles = realm.getRoles().findByNamesOrFail(roleNames);
         final Roles missingRoles = currentRealmRoles.missing(expectedRoles);
@@ -154,7 +177,10 @@ public final class User {
      * 
      * @return All user client roles.
      */
-    public final Roles clientRoles(final Client client) {
+    @NotNull
+    public final Roles clientRoles(@NotNull final Client client) {
+        Validate.notNull(client, "client== null");
+
         return new Roles(resource.roles().clientLevel(client.getUUID()).listAll());
     }
 
@@ -166,7 +192,10 @@ public final class User {
      * @param roles
      *            Roles from the client to add.
      */
-    public final void addClientRoles(final Client client, final Roles roles) {
+    public final void addClientRoles(@NotNull final Client client, @NotNull final Roles roles) {
+        Validate.notNull(client, "client==null");
+        Validate.notNull(roles, "roles==null");
+
         resource.roles().clientLevel(client.getUUID()).add(roles.getList());
     }
 
@@ -177,9 +206,13 @@ public final class User {
      * @param client
      *            Client the roles are associated with.
      * @param roleNames
-     *            Name of the roles from the client to add to the user.
+     *            Name of the roles from the client to add to the user. The name cannot be null or empty.
      */
-    public final void addClientRoles(final Client client, final String... roleNames) {
+    public final void addClientRoles(@NotNull final Client client, @NotNull final String... roleNames) {
+        Validate.notNull(client, "client==null");
+        Validate.notEmpty(roleNames, "roleNames==null or empty");
+        Validate.noNullElements(roleNames, "null elements are not allowed for roleNames");
+
         final Roles currentClientRoles = clientRoles(client);
         final Roles expectedRoles = client.getRoles().findByNamesOrFail(roleNames);
         final Roles missingRoles = currentClientRoles.missing(expectedRoles);
@@ -192,10 +225,14 @@ public final class User {
      * Make user join the given groups.
      * 
      * @param names
-     *            Group names.
+     *            Groups.
      */
-    public final void joinGroups(final List<Group> groups) {
+    public final void joinGroups(@NotEmpty final List<Group> groups) {
+        Validate.notEmpty(groups, "groups== null or groups.size==0");
+        Validate.noNullElements(groups, "null elements are not allowed for groups");
+
         for (final Group group : groups) {
+            LOG.debug("[{}] User '{}' joined group '{}'", realm.getName(), name, group.getName());
             resource.joinGroup(group.getUUID());
         }
     }
@@ -214,8 +251,13 @@ public final class User {
      * 
      * @return New user.
      */
-    public static User create(final Realm realm, final String name, final String pw, final boolean enable) {
-        LOG.debug("Create user '{}'", name);
+    @NotNull
+    public static User create(@NotNull final Realm realm, @NotEmpty final String name, @NotEmpty final String pw, final boolean enable) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(name, "name==null or empty");
+        Validate.notEmpty(pw, "pw==null or empty");
+
+        LOG.debug("[{}] Create user '{}'", realm.getName(), name);
 
         final CredentialRepresentation credential = new CredentialRepresentation();
         credential.setType(CredentialRepresentation.PASSWORD);
@@ -246,14 +288,18 @@ public final class User {
      * 
      * @return Representation or {@literal null} if not found.
      */
-    public static User find(final Realm realm, final String name) {
+    @Nullable
+    public static User find(@NotNull final Realm realm, @NotNull final String name) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(name, "name==null or empty");
+
         final List<UserRepresentation> userReps = realm.getResource().users().list();
         if (userReps == null) {
             return null;
         }
         for (final UserRepresentation userRep : userReps) {
             if (userRep.getUsername().equals(name)) {
-                LOG.debug("Found user '{}'", name);
+                LOG.debug("[{}] Found user '{}'", realm.getName(), name);
                 final UserResource userResource = realm.getResource().users().get(userRep.getId());
                 return new User(realm, userRep.getId(), name, userResource);
             }
@@ -275,7 +321,12 @@ public final class User {
      * 
      * @return Resource of the realm.
      */
-    public static User findOrCreate(final Realm realm, final String name, final String pw, final boolean enable) {
+    @NotNull
+    public static User findOrCreate(@NotNull final Realm realm, @NotNull final String name, @NotNull final String pw,
+            final boolean enable) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(name, "name==null or empty");
+
         final User user = find(realm, name);
         if (user == null) {
             return create(realm, name, pw, enable);
