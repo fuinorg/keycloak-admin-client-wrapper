@@ -202,6 +202,39 @@ public final class Client {
     }
 
     /**
+     * Creates a typical Open ID connect client with client Credentials Grant.
+     * 
+     * @param realm
+     *            Realm the client belongs to.
+     * @param clientId
+     *            Client identifier.
+     * @param clientSecret
+     *            Client password.
+     * 
+     * @return New client.
+     */
+    @NotNull
+    public static Client createOpenIdConnectWithClientCredentials(@NotNull final Realm realm, @NotEmpty final String clientId,
+            @NotEmpty final String clientSecret) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(clientId, "clientId==null or empty");
+        Validate.notEmpty(clientSecret, "clientSecret==null or empty");
+
+        final ClientRepresentation clientRep = new ClientRepresentation();
+        clientRep.setClientId(clientId);
+        clientRep.setProtocol("openid-connect");
+        clientRep.setPublicClient(false);
+        clientRep.setSecret(clientSecret);
+        clientRep.setClientAuthenticatorType("client-secret");
+        clientRep.setStandardFlowEnabled(false);
+        clientRep.setDirectAccessGrantsEnabled(false);
+        clientRep.setServiceAccountsEnabled(true);
+
+        return create(realm, clientId, clientRep);
+
+    }
+
+    /**
      * Creates a client based on a representation.
      * 
      * @param realm
@@ -231,12 +264,12 @@ public final class Client {
     }
 
     /**
-     * Locates a user by it's client identifier.
+     * Locates a client by it's client identifier.
      * 
      * @param realm
      *            Realm the client belongs to.
      * @param clientId
-     *            Client ID of user to find.
+     *            ID of client to find.
      * 
      * @return Representation or {@literal null} if not found.
      */
@@ -260,12 +293,12 @@ public final class Client {
     }
 
     /**
-     * Locates a user by it's client identifier or fails with a runtime exception if it does not exist.
+     * Locates a client by it's client identifier or fails with a runtime exception if it does not exist.
      * 
      * @param realm
      *            Realm the client belongs to.
      * @param clientId
-     *            Client ID of user to find.
+     *            ID of client to find.
      * 
      * @return Representation.
      */
@@ -283,7 +316,7 @@ public final class Client {
     }
 
     /**
-     * Locates a user by it's client identifier or creates it if it does not exist yet.<br>
+     * Locates a client by it's client identifier or creates it if it does not exist yet.<br>
      * Creates a typical Open ID connect client with client secret and redirect.
      * 
      * @param realm
@@ -319,7 +352,7 @@ public final class Client {
     }
 
     /**
-     * Locates a user by it's client identifier or creates it if it does not exist yet.<br>
+     * Locates a client by it's client identifier or creates it if it does not exist yet.<br>
      * Creates a typical Open ID connect client with implicit flow and redirect URI.
      * 
      * @param realm
@@ -346,12 +379,40 @@ public final class Client {
     }
 
     /**
-     * Locates a user by it's client identifier or creates it if it does not exist yet.
+     * Locates a client by it's identifier or creates it if it does not exist yet.<br>
+     * Creates a typical Open ID connect client with Client Credentials Grant.
      * 
      * @param realm
      *            Realm the client belongs to.
      * @param clientId
-     *            Client ID of user to find.
+     *            Client identifier.
+     * @param clientSecret
+     *            Client password.
+     * 
+     * @return New client.
+     */
+    @NotNull
+    public static Client findOrCreateOpenIdConnectWithClientCredentials(@NotNull final Realm realm, @NotEmpty final String clientId,
+            @NotEmpty final String clientSecret) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(clientId, "clientId==null or empty");
+        Validate.notEmpty(clientSecret, "clientSecret==null or empty");
+
+        final Client client = find(realm, clientId);
+        if (client == null) {
+            return createOpenIdConnectWithClientCredentials(realm, clientId, clientSecret);
+        }
+        return client;
+
+    }
+
+    /**
+     * Locates a client by it's identifier or creates it if it does not exist yet.
+     * 
+     * @param realm
+     *            Realm the client belongs to.
+     * @param clientId
+     *            ID of client to find.
      * @param representation
      *            Representation to use in case a new client needs to be created.
      * 
