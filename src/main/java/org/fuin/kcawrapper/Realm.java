@@ -128,13 +128,35 @@ public final class Realm {
         Validate.notNull(keycloak, "keycloak==null");
         Validate.notEmpty(name, "name==null or empty");
 
-        LOG.debug("Create realm '{}'", name);
         final RealmRepresentation realmRep = new RealmRepresentation();
         realmRep.setRealm(name);
         realmRep.setEnabled(enable);
+
+        return create(keycloak, realmRep);
+    }
+
+    /**
+     * Creates a realm.
+     * 
+     * @param keycloak
+     *            Keycloak instance to use.
+     * @param realmRep
+     *            Realm configuration.
+     * 
+     * @return Resource of the created realm.
+     */
+    @NotNull
+    public static Realm create(@NotNull final Keycloak keycloak, @NotNull final RealmRepresentation realmRep) {
+        Validate.notNull(keycloak, "keycloak==null");
+        Validate.notNull(realmRep, "realmRep==null");
+        Validate.notEmpty(realmRep.getRealm(), "realmRep.realm==null or empty");
+
+        final String name = realmRep.getRealm();
+        LOG.debug("Create realm '{}'", name);
         keycloak.realms().create(realmRep);
         final RealmResource realmRes = keycloak.realm(name);
         return new Realm(keycloak, name, realmRes);
+
     }
 
     /**
@@ -185,6 +207,29 @@ public final class Realm {
         final Realm realm = find(keycloak, name);
         if (realm == null) {
             return create(keycloak, name, enable);
+        }
+        return realm;
+    }
+
+    /**
+     * Locates a realm by it's name or creates it if it was not found.
+     * 
+     * @param keycloak
+     *            Keycloak instance to use.
+     * @param realmRep
+     *            Realm configuration in case the realm needs to be created.
+     * 
+     * @return Resource of the realm.
+     */
+    @NotNull
+    public static Realm findOrCreate(@NotNull final Keycloak keycloak, @NotNull final RealmRepresentation realmRep) {
+        Validate.notNull(keycloak, "keycloak==null");
+        Validate.notNull(realmRep, "realmRep==null");
+        Validate.notEmpty(realmRep.getRealm(), "realmRep.realm==null or empty");
+
+        final Realm realm = find(keycloak, realmRep.getRealm());
+        if (realm == null) {
+            return create(keycloak, realmRep);
         }
         return realm;
     }
