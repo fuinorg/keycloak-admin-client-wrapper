@@ -61,8 +61,7 @@ public final class User {
      * @param resource
      *            Associated user resource.
      */
-    private User(@NotNull final Realm realm, @NotEmpty final String uuid, @NotEmpty final String name,
-            @NotNull final UserResource resource) {
+    User(@NotNull final Realm realm, @NotEmpty final String uuid, @NotEmpty final String name, @NotNull final UserResource resource) {
         super();
         Validate.notNull(realm, "realm==null");
         Validate.notEmpty(uuid, "uuid==null or empty");

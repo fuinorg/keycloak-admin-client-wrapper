@@ -27,7 +27,9 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.Validate;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.keycloak.admin.client.resource.ClientResource;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.ClientRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,6 +122,17 @@ public final class Client {
     @NotNull
     public final Roles getRoles() {
         return new Roles(resource.roles().list());
+    }
+
+    /**
+     * Returns the service account user.
+     * 
+     * @return User that represents the client.
+     */
+    public final User getServiceAccountUser() {
+        final UserRepresentation userRep = resource.getServiceAccountUser();
+        final UserResource userResource = realm.getResource().users().get(userRep.getId());
+        return new User(realm, userRep.getId(), userRep.getUsername(), userResource);
     }
 
     /**

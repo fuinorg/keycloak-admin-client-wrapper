@@ -75,4 +75,23 @@ public class ClientIT extends BaseTest {
 
     }
 
+    @Test
+    public void testGetServiceAccountUser() {
+
+        try (final Keycloak keycloak = master()) {
+
+            // PREPARE
+            final Realm realm = Realm.findOrCreate(keycloak, REALM, true);
+            final Client client = Client.findOrCreateOpenIdConnectWithClientCredentials(realm, "testGetServiceAccountUser", "abc");
+
+            // TEST
+            final User user = client.getServiceAccountUser();
+
+            // VERIFY
+            assertThat(user).isNotNull();
+
+        }
+
+    }
+
 }
