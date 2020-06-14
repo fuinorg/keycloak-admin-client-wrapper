@@ -149,7 +149,7 @@ public final class Role {
      * @param name
      *            Role ID of user to find.
      * 
-     * @return Representation or {@literal null} if not found.
+     * @return Role or {@literal null} if not found.
      */
     @Nullable
     public static Role find(@NotNull final Realm realm, @NotEmpty final String name) {
@@ -177,7 +177,7 @@ public final class Role {
      * @param name
      *            Name of role to find.
      * 
-     * @return Representation.
+     * @return Role.
      */
     @NotNull
     public static Role findOrFail(@NotNull final Realm realm, @NotEmpty final String name) {
@@ -188,7 +188,6 @@ public final class Role {
         if (role == null) {
             throw new RuntimeException("Role '" + name + "' should exist, but was not found");
         }
-        LOG.debug("Found role '{}'", name);
         return role;
     }
 

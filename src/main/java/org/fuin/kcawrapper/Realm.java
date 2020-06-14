@@ -143,7 +143,7 @@ public final class Realm {
      * @param realmRep
      *            Realm configuration.
      * 
-     * @return Resource of the created realm.
+     * @return New realm.
      */
     @NotNull
     public static Realm create(@NotNull final Keycloak keycloak, @NotNull final RealmRepresentation realmRep) {
@@ -167,7 +167,7 @@ public final class Realm {
      * @param name
      *            Name of realm to find.
      * 
-     * @return Representation or {@literal null} if not found.
+     * @return Realm or {@literal null} if not found.
      */
     @Nullable
     public static Realm find(@NotNull final Keycloak keycloak, @NotEmpty final String name) {
@@ -197,7 +197,7 @@ public final class Realm {
      * @param enable
      *            Enable realm in case it has to be created?
      * 
-     * @return Resource of the realm.
+     * @return Realm.
      */
     @NotNull
     public static Realm findOrCreate(@NotNull final Keycloak keycloak, @NotEmpty final String name, final boolean enable) {
@@ -219,7 +219,7 @@ public final class Realm {
      * @param realmRep
      *            Realm configuration in case the realm needs to be created.
      * 
-     * @return Resource of the realm.
+     * @return Realm.
      */
     @NotNull
     public static Realm findOrCreate(@NotNull final Keycloak keycloak, @NotNull final RealmRepresentation realmRep) {
@@ -230,6 +230,28 @@ public final class Realm {
         final Realm realm = find(keycloak, realmRep.getRealm());
         if (realm == null) {
             return create(keycloak, realmRep);
+        }
+        return realm;
+    }
+
+    /**
+     * Locates a realm by it's name or fails with a runtime exception if it does not exist.
+     * 
+     * @param keycloak
+     *            Keycloak instance to use.
+     * @param name
+     *            Name of the realm to find.
+     * 
+     * @return Realm.
+     */
+    @NotNull
+    public static Realm findOrFail(@NotNull final Keycloak keycloak, @NotNull final String name) {
+        Validate.notNull(keycloak, "keycloak==null");
+        Validate.notEmpty(name, "name==null or empty");
+
+        final Realm realm = find(keycloak, name);
+        if (realm == null) {
+            throw new RuntimeException("Realm '" + name + "' should exist, but was not found");
         }
         return realm;
     }

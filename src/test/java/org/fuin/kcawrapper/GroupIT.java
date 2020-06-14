@@ -18,6 +18,7 @@
 package org.fuin.kcawrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
@@ -48,6 +49,26 @@ public class GroupIT extends BaseTest {
             // VERIFY
             assertThat(group).isNotNull();
             assertThat(Group.find(realm, GROUP)).isNotNull();
+
+        }
+
+    }
+
+    @Test
+    public void testFindOrFail() {
+
+        try (final Keycloak keycloak = master()) {
+
+            // PREPARE
+            final Realm realm = Realm.findOrCreate(keycloak, REALM, true);
+
+            // TEST & VERIFY
+            try {
+                Group.findOrFail(realm, "non-existing-group");
+                fail();
+            } catch (final RuntimeException ex) {
+                assertThat(ex.getMessage()).isEqualTo("Group 'non-existing-group' should exist, but was not found");
+            }
 
         }
 

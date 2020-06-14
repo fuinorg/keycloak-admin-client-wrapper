@@ -18,6 +18,7 @@
 package org.fuin.kcawrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 
@@ -57,8 +58,28 @@ public class UserIT extends BaseTest {
     }
 
     @Test
+    public void testFindOrFail() {
+
+        try (final Keycloak keycloak = master()) {
+
+            // PREPARE
+            final Realm realm = Realm.findOrCreate(keycloak, REALM, true);
+
+            // TEST & VERIFY
+            try {
+                User.findOrFail(realm, "non-existing-user");
+                fail();
+            } catch (final RuntimeException ex) {
+                assertThat(ex.getMessage()).isEqualTo("User 'non-existing-user' should exist, but was not found");
+            }
+
+        }
+
+    }
+
+    @Test
     public void testJoinGroups() {
-        
+
         try (final Keycloak keycloak = master()) {
 
             // PREPARE
@@ -78,8 +99,7 @@ public class UserIT extends BaseTest {
             assertThat(groupRep.getName()).isEqualTo(groupName);
 
         }
-        
-        
+
     }
-    
+
 }

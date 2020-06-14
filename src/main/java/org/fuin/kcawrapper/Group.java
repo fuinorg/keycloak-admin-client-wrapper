@@ -241,7 +241,7 @@ public final class Group {
      * @param name
      *            Name of group to find.
      * 
-     * @return Representation or {@literal null} if not found.
+     * @return Group or {@literal null} if not found.
      */
     @Nullable
     public static Group find(@NotNull final Realm realm, @NotEmpty final String name) {
@@ -270,13 +270,32 @@ public final class Group {
      * @param name
      *            Name.
      * 
-     * @return Resource of the realm.
+     * @return Group.
      */
     @NotNull
     public static Group findOrCreate(@NotNull final Realm realm, @NotEmpty final String name) {
         final Group group = find(realm, name);
         if (group == null) {
             return create(realm, name);
+        }
+        return group;
+    }
+
+    /**
+     * Locates a group by it's name or fails with a runtime exception if it does not exist.
+     * 
+     * @param realm
+     *            Realm the group belongs to.
+     * @param name
+     *            Name of the group to find.
+     * 
+     * @return Group.
+     */
+    @NotNull
+    public static Group findOrFail(@NotNull final Realm realm, @NotEmpty final String name) {
+        final Group group = find(realm, name);
+        if (group == null) {
+            throw new RuntimeException("Group '" + name + "' should exist, but was not found");
         }
         return group;
     }

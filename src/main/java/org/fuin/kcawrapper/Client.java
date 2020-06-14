@@ -284,7 +284,7 @@ public final class Client {
      * @param clientId
      *            ID of client to find.
      * 
-     * @return Representation or {@literal null} if not found.
+     * @return Client or {@literal null} if not found.
      */
     @Nullable
     public static Client find(@NotNull final Realm realm, @NotEmpty final String clientId) {
@@ -313,7 +313,7 @@ public final class Client {
      * @param clientId
      *            ID of client to find.
      * 
-     * @return Representation.
+     * @return Client.
      */
     @NotNull
     public static Client findOrFail(@NotNull final Realm realm, @NotEmpty final String clientId) {
@@ -347,7 +347,7 @@ public final class Client {
      *            Enables the "Direct Access Grants" (Resource Owner Password Credentials Grant) flow. This means "ServiceId/ServicePW" plus
      *            "UserName/UserPw" are used for authentication.
      * 
-     * @return Resource.
+     * @return Client.
      */
     @NotNull
     public static Client findOrCreateOpenIdConnectWithSecret(@NotNull final Realm realm, @NotEmpty final String clientId,
@@ -375,7 +375,7 @@ public final class Client {
      * @param uri
      *            Redirect URI.
      * 
-     * @return Resource.
+     * @return Client.
      */
     @NotNull
     public static Client findOrCreateOpenIdConnectWithImplicit(@NotNull final Realm realm, @NotEmpty final String clientId,

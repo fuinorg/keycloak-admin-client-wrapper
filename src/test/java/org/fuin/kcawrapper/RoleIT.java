@@ -18,6 +18,7 @@
 package org.fuin.kcawrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
@@ -50,6 +51,26 @@ public class RoleIT extends BaseTest {
             // VERIFY
             assertThat(group).isNotNull();
             assertThat(Role.find(realm, ROLE)).isNotNull();
+
+        }
+
+    }
+
+    @Test
+    public void testFindOrFail() {
+
+        try (final Keycloak keycloak = master()) {
+
+            // PREPARE
+            final Realm realm = Realm.findOrCreate(keycloak, REALM, true);
+
+            // TEST & VERIFY
+            try {
+                Role.findOrFail(realm, "non-existing-role");
+                fail();
+            } catch (final RuntimeException ex) {
+                assertThat(ex.getMessage()).isEqualTo("Role 'non-existing-role' should exist, but was not found");
+            }
 
         }
 

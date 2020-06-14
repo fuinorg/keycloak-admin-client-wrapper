@@ -285,7 +285,7 @@ public final class User {
      * @param name
      *            Name of user to find.
      * 
-     * @return Representation or {@literal null} if not found.
+     * @return User or {@literal null} if not found.
      */
     @Nullable
     public static User find(@NotNull final Realm realm, @NotNull final String name) {
@@ -318,7 +318,7 @@ public final class User {
      * @param enable
      *            Enable a newly created user or not.
      * 
-     * @return Resource of the realm.
+     * @return User.
      */
     @NotNull
     public static User findOrCreate(@NotNull final Realm realm, @NotNull final String name, @NotNull final String pw,
@@ -329,6 +329,28 @@ public final class User {
         final User user = find(realm, name);
         if (user == null) {
             return create(realm, name, pw, enable);
+        }
+        return user;
+    }
+
+    /**
+     * Locates a user by it's name or fails with a runtime exception if it does not exist.
+     * 
+     * @param realm
+     *            Realm the user belongs to.
+     * @param name
+     *            Name of the user to find.
+     * 
+     * @return User.
+     */
+    @NotNull
+    public static User findOrFail(@NotNull final Realm realm, @NotNull final String name) {
+        Validate.notNull(realm, "realm==null");
+        Validate.notEmpty(name, "name==null or empty");
+
+        final User user = find(realm, name);
+        if (user == null) {
+            throw new RuntimeException("User '" + name + "' should exist, but was not found");
         }
         return user;
     }
