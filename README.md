@@ -102,3 +102,47 @@ Roles currentRoles = new Roles(list1);
 Roles expectedRoles = new Roles(list2);
 Roles missingRoles = currentRoles.missing(expectedRoles);
 ```
+
+# SNAPSHOTS
+
+You can add the following to your .m2/settings.xml to enable snapshots in your Maven build:
+
+```xml
+<repository>
+    <id>sonatype.oss.snapshots</id>
+    <name>Sonatype OSS Snapshot Repository</name>
+    <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+    <releases>
+        <enabled>false</enabled>
+    </releases>
+    <snapshots>
+        <enabled>true</enabled>
+    </snapshots>
+</repository>
+```
+(Here is also a full example of a [settings.xml.txt](https://github.com/fuinorg/keycloak-admin-client-wrapper/files/4908457/settings.xml.txt - Caution: It's named ".txt" because Github does not allow uploading XML files, so you have to rename it).
+
+Another option would be to add a repository directly to your project's pom.xml:
+
+```xml
+<repositories>
+ 
+  <repository>
+      <id>sonatype.oss.snapshots</id>
+      <name>Sonatype OSS Snapshot Repository</name>
+      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+          <enabled>false</enabled>
+      </releases>
+      <snapshots>
+          <enabled>true</enabled>
+      </snapshots>
+   
+  </repository>
+ 
+</repositories>
+
+```
+
+
+
