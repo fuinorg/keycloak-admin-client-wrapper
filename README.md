@@ -120,7 +120,7 @@ You can add the following to your .m2/settings.xml to enable snapshots in your M
     </snapshots>
 </repository>
 ```
-(Here is also a full example of a [settings.xml.txt](https://github.com/fuinorg/keycloak-admin-client-wrapper/files/4908457/settings.xml.txt - Caution: It's named ".txt" because Github does not allow uploading XML files, so you have to rename it).
+(Here is also a full example of a [settings.xml](https://github.com/fuinorg/keycloak-admin-client-wrapper/files/4908457/settings.xml.txt) (Caution: It's named ".txt" because Github does not allow uploading XML files, so you have to rename it).
 
 Another option would be to add a repository directly to your project's pom.xml:
 
