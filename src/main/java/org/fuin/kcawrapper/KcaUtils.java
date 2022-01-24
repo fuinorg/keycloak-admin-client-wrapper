@@ -38,8 +38,6 @@ public final class KcaUtils {
     /**
      * Extracts the identifier from the response location.
      * 
-     * @param typeAndName
-     *            Type and name used in case of error messages.
      * @param response
      *            Response to extract the last part of the path from.
      * 

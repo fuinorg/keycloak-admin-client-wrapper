@@ -117,7 +117,7 @@ public final class User {
     /**
      * Make user join the given groups.
      * 
-     * @param names
+     * @param groups
      *            Group names.
      */
     public final void joinGroups(@NotNull final Group... groups) {
@@ -223,7 +223,7 @@ public final class User {
     /**
      * Make user join the given groups.
      * 
-     * @param names
+     * @param groups
      *            Groups.
      */
     public final void joinGroups(@NotEmpty final List<Group> groups) {

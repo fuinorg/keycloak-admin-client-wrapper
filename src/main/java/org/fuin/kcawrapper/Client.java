@@ -150,7 +150,7 @@ public final class Client {
      * @param standardFlow
      *            Enables the "Standard Flow" (Authorization Code Flow). This is recommend you use to authenticate and authorize with
      *            browser-based applications. Can be ussed for example by the Swagger UI.
-     * @param uri
+     * @param directAccessGrants
      *            Enables the "Direct Access Grants" (Resource Owner Password Credentials Grant) flow. This means "ServiceId/ServicePW" plus
      *            "UserName/UserPw" are used for authentication.
      * 
@@ -344,7 +344,7 @@ public final class Client {
      * @param standardFlow
      *            Enables the "Standard Flow" (Authorization Code Flow). This is recommend you use to authenticate and authorize with
      *            browser-based applications. Can be used for example for the Swagger UI.
-     * @param uri
+     * @param directAccessGrants
      *            Enables the "Direct Access Grants" (Resource Owner Password Credentials Grant) flow. This means "ServiceId/ServicePW" plus
      *            "UserName/UserPw" are used for authentication.
      * 
