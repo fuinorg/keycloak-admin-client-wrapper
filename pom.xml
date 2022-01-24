@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.fuin</groupId>
         <artifactId>pom</artifactId>
-        <version>1.7.0-SNAPSHOT</version>
+        <version>1.7.0</version>
     </parent>
 
     <artifactId>keycloak-admin-client-wrapper</artifactId>
@@ -39,19 +39,19 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.10</version>
+            <version>3.12.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.checkerframework</groupId>
             <artifactId>checker-qual</artifactId>
-            <version>3.4.0</version>
+            <version>3.21.1</version>
         </dependency>
 
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-admin-client</artifactId>
-            <version>9.0.3</version>
+            <version>16.1.0</version>
         </dependency>
 
         <!-- Test -->
@@ -66,56 +66,56 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.4.2</version>
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.4.2</version>
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.4.2</version>
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>1.13.0</version>
+            <version>1.16.3</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.13.0</version>
+            <version>1.16.3</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.15.0</version>
+            <version>3.22.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
-            <version>3.9.1.Final</version>
+            <version>3.13.2.Final</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.fuin</groupId>
             <artifactId>units4j</artifactId>
-            <version>0.9.0-SNAPSHOT</version>
+            <version>0.9.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -170,7 +170,66 @@
                 </executions>
             </plugin>
 
+			<plugin>
+				<groupId>com.internetitem</groupId>
+				<artifactId>write-properties-file-maven-plugin</artifactId>
+				<version>1.0.1</version>
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<id>one</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>write-properties-file</goal>
+						</goals>
+						<configuration>
+							<filename>project.properties</filename>
+							<properties>
+								<property>
+									<name>maven_version</name>
+									<value>${project.version}</value>
+								</property>
+							</properties>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
         </plugins>
+
+		<pluginManagement>
+		
+		    <plugins>
+		    
+		        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+		        <plugin>
+		            <groupId>org.eclipse.m2e</groupId>
+		            <artifactId>lifecycle-mapping</artifactId>
+		            <version>1.0.0</version>
+		            <configuration>
+		                <lifecycleMappingMetadata>
+		                    <pluginExecutions>
+		                        <pluginExecution>
+		                            <pluginExecutionFilter>
+		                                <groupId>com.internetitem</groupId>
+		                                <artifactId>write-properties-file-maven-plugin</artifactId>
+		                                <versionRange>[1.0.1,)</versionRange>
+		                                <goals>
+		                                    <goal>write-properties-file</goal>
+		                                </goals>
+		                            </pluginExecutionFilter>
+		                            <action>
+		                                <ignore />
+		                            </action>
+		                        </pluginExecution>
+		                    </pluginExecutions>
+		                </lifecycleMappingMetadata>
+		            </configuration>
+		        </plugin>
+		        
+		    </plugins>
+		    
+		</pluginManagement>
 
     </build>
 

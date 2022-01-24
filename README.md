@@ -1,13 +1,13 @@
 # keycloak-admin-client-wrapper
 Small wrapper around the [Keycloak Admin Client](https://www.keycloak.org/keycloak-admin-client/index.html) that simplifies some tasks.
 
-[![Build Status](https://jenkins.fuin.org/job/keycloak-admin-client-wrapper/badge/icon)](https://jenkins.fuin.org/job/keycloak-admin-client-wrapper/)
+[![Java Maven Build](https://github.com/fuinorg/keycloak-admin-client-wrapper/actions/workflows/maven.yml/badge.svg)](https://github.com/fuinorg/keycloak-admin-client-wrapper/actions/workflows/maven.yml)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.fuin/keycloak-admin-client-wrapper/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.fuin/keycloak-admin-client-wrapper/)
 [![LGPLv3 License](http://img.shields.io/badge/license-LGPLv3-blue.svg)](https://www.gnu.org/licenses/lgpl.html)
 [![Java Development Kit 11](https://img.shields.io/badge/JDK-11-green.svg)](https://openjdk.java.net/projects/jdk/11/)
 
 ## Keycloak Version
-Current Keycloak Version: 9.0.3
+Current Keycloak Version: 16.1.0
 
 ## Realm Example
 

@@ -40,7 +40,7 @@ public abstract class BaseTest {
     static final GenericContainer KEYCLOAK_CONTAINER;
 
     static {
-        KEYCLOAK_CONTAINER = new GenericContainer("jboss/keycloak:9.0.3").withExposedPorts(8080).withEnv("KEYCLOAK_USER", ADMIN_USER)
+        KEYCLOAK_CONTAINER = new GenericContainer("jboss/keycloak:16.1.0").withExposedPorts(8080).withEnv("KEYCLOAK_USER", ADMIN_USER)
                 .withEnv("KEYCLOAK_PASSWORD", ADMIN_PW).waitingFor(Wait.forHttp("/auth").withStartupTimeout(Duration.of(2L, MINUTES)));
         KEYCLOAK_CONTAINER.start();
     }
@@ -61,7 +61,8 @@ public abstract class BaseTest {
      */
     static Keycloak master() {
         return KeycloakBuilder.builder().serverUrl(getHostUrl() + "/auth/").realm("master").username(ADMIN_USER).password(ADMIN_PW)
-                .clientId("admin-cli").resteasyClient(new ResteasyClientBuilder().connectionPoolSize(20).build()).build();
+                .clientId("admin-cli")
+                .resteasyClient(((ResteasyClientBuilder) ResteasyClientBuilder.newBuilder()).connectionPoolSize(20).build()).build();
     }
 
 }

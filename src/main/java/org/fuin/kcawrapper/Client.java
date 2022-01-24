@@ -129,6 +129,7 @@ public final class Client {
      * 
      * @return User that represents the client.
      */
+    @NotNull
     public final User getServiceAccountUser() {
         final UserRepresentation userRep = resource.getServiceAccountUser();
         final UserResource userResource = realm.getResource().users().get(userRep.getId());
